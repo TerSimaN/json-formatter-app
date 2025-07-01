@@ -54,67 +54,8 @@ public class JsonEditorPanel extends JPanel {
         filter = new FileNameExtensionFilter("JSON files (*.json)", "json");
         customFlowLayout = new FlowLayout(FlowLayout.LEADING, 5, 0);
 
-        // File controls panel
-        JPanel fileControlsPanel = new JPanel(customFlowLayout);
-        fileNameField = new JTextField(20);
-        fileControlsPanel.add(fileNameField);
-        
-        newButton = new JButton("New", ImageIconConstants.newFileIcon);
-        newButton.addActionListener(e -> {
-            fileNameField.setText("New document");
-            jsonTextArea.setText(null);
-            updateUndoRedoManagerState();
-        });
-        fileControlsPanel.add(newButton);
-
-        openButton = new JButton("Open", ImageIconConstants.openFileIcon);
-        openButton.addActionListener(e -> {
-            open();
-            updateUndoRedoManagerState();
-        });
-        fileControlsPanel.add(openButton);
-
-        saveButton = new JButton("Save", ImageIconConstants.saveFileIcon);
-        saveButton.addActionListener(e -> save());
-        fileControlsPanel.add(saveButton);
-
-        copyButton = new JButton("Copy", ImageIconConstants.copyFileIcon);
-        fileControlsPanel.add(copyButton);
-
-        // Control options panel
-        JPanel controlOptionsPanel = new JPanel(customFlowLayout);
-
-        JButton formatJsonButton = new JButton(ImageIconConstants.formatJsonIcon);
-        formatJsonButton.setPreferredSize(iconBtnPreferredSize);
-        formatJsonButton.setToolTipText("Format JSON: add proper identation and new lines");
-        formatJsonButton.addActionListener(e -> prettyPrintJson());
-        controlOptionsPanel.add(formatJsonButton);
-
-        JButton compactJsonButton = new JButton(ImageIconConstants.compactJsonIcon);
-        compactJsonButton.setPreferredSize(iconBtnPreferredSize);
-        compactJsonButton.setToolTipText("Compact JSON: remove all white spacing and new lines");
-        compactJsonButton.addActionListener(e -> compactPrintJson());
-        controlOptionsPanel.add(compactJsonButton);
-
-        JButton undoButton = new JButton(ImageIconConstants.arrowLeftBoldIcon);
-        undoButton.setPreferredSize(iconBtnPreferredSize);
-        undoButton.setToolTipText("Undo");
-        undoListener = new UndoListener(undoButton);
-        undoButton.addActionListener(undoListener);
-        controlOptionsPanel.add(undoButton);
-
-        JButton redoButton = new JButton(ImageIconConstants.arrowRightBoldIcon);
-        redoButton.setPreferredSize(iconBtnPreferredSize);
-        redoButton.setToolTipText("Redo");
-        redoListener = new RedoListener(redoButton);
-        redoButton.addActionListener(redoListener);
-        controlOptionsPanel.add(redoButton);
-
-        // Button for showing debug/sysout/syserr info
-        JButton debugButton = new JButton();
-        debugButton.setPreferredSize(iconBtnPreferredSize);
-        debugButton.addActionListener(e -> printDebugInfo());
-        controlOptionsPanel.add(debugButton);
+        JPanel fileControlsPanel = createFileControlsPanel(customFlowLayout);
+        JPanel controlOptionsPanel = createControlOptionsPanel(customFlowLayout);
 
         // Text area
         jsonTextArea = new JTextArea();
@@ -127,15 +68,90 @@ public class JsonEditorPanel extends JPanel {
         jsonScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         jsonScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-        // System.out.println("JButton MinimumSize: " + copyButton.getMinimumSize());
-        // System.out.println("JButton PreferredSize: " + copyButton.getPreferredSize());
-        // System.out.println("JButton MaximumSize: " + copyButton.getMaximumSize());
-
         this.add(fileControlsPanel);
         this.add(Box.createVerticalStrut(5));
         this.add(controlOptionsPanel);
         this.add(Box.createVerticalStrut(5));
         this.add(jsonScrollPane);
+    }
+
+    /**
+     * Create a file controls JPanel with the specified layout manager
+     * @param layout the LayoutManager to use
+     * @return the panel
+     */
+    private JPanel createFileControlsPanel(LayoutManager layout) {
+        JPanel panel = new JPanel(layout);
+
+        fileNameField = new JTextField(20);
+        panel.add(fileNameField);
+        
+        newButton = new JButton("New", ImageIconConstants.newFileIcon);
+        newButton.addActionListener(e -> {
+            fileNameField.setText("New document");
+            jsonTextArea.setText(null);
+            updateUndoRedoManagerState();
+        });
+        panel.add(newButton);
+
+        openButton = new JButton("Open", ImageIconConstants.openFileIcon);
+        openButton.addActionListener(e -> {
+            open();
+            updateUndoRedoManagerState();
+        });
+        panel.add(openButton);
+
+        saveButton = new JButton("Save", ImageIconConstants.saveFileIcon);
+        saveButton.addActionListener(e -> save());
+        panel.add(saveButton);
+
+        copyButton = new JButton("Copy", ImageIconConstants.copyFileIcon);
+        panel.add(copyButton);
+
+        return panel;
+    }
+
+    /**
+     * Create a control options JPanel with the specified layout manager
+     * @param layout the LayoutManager to use
+     * @return the panel
+     */
+    private JPanel createControlOptionsPanel(LayoutManager layout) {
+        JPanel panel = new JPanel(layout);
+
+        JButton formatJsonButton = new JButton(ImageIconConstants.formatJsonIcon);
+        formatJsonButton.setPreferredSize(iconBtnPreferredSize);
+        formatJsonButton.setToolTipText("Format JSON: add proper identation and new lines");
+        formatJsonButton.addActionListener(e -> prettyPrintJson());
+        panel.add(formatJsonButton);
+
+        JButton compactJsonButton = new JButton(ImageIconConstants.compactJsonIcon);
+        compactJsonButton.setPreferredSize(iconBtnPreferredSize);
+        compactJsonButton.setToolTipText("Compact JSON: remove all white spacing and new lines");
+        compactJsonButton.addActionListener(e -> compactPrintJson());
+        panel.add(compactJsonButton);
+
+        JButton undoButton = new JButton(ImageIconConstants.arrowLeftBoldIcon);
+        undoButton.setPreferredSize(iconBtnPreferredSize);
+        undoButton.setToolTipText("Undo");
+        undoListener = new UndoListener(undoButton);
+        undoButton.addActionListener(undoListener);
+        panel.add(undoButton);
+
+        JButton redoButton = new JButton(ImageIconConstants.arrowRightBoldIcon);
+        redoButton.setPreferredSize(iconBtnPreferredSize);
+        redoButton.setToolTipText("Redo");
+        redoListener = new RedoListener(redoButton);
+        redoButton.addActionListener(redoListener);
+        panel.add(redoButton);
+
+        // Button for showing debug/sysout/syserr info
+        JButton debugButton = new JButton();
+        debugButton.setPreferredSize(iconBtnPreferredSize);
+        debugButton.addActionListener(e -> printDebugInfo());
+        panel.add(debugButton);
+
+        return panel;
     }
 
     public String getJsonText() {
@@ -153,6 +169,10 @@ public class JsonEditorPanel extends JPanel {
         if (doc instanceof AbstractDocument) {
             System.out.println("jsonTextArea is an instance of AbstractDocument");
         }
+
+        // System.out.println("JButton MinimumSize: " + copyButton.getMinimumSize());
+        // System.out.println("JButton PreferredSize: " + copyButton.getPreferredSize());
+        // System.out.println("JButton MaximumSize: " + copyButton.getMaximumSize());
     }
 
     private void open() {
