@@ -138,6 +138,12 @@ public class MainPanel extends JPanel {
         return differencesPanel;
     }
 
+    /**
+     * Copies the contents of one editor to another based on the given direction
+     * @param direction One of the following directions
+     *          defined in <code>ContentDirection</code>:
+     *          <code>LEFT</code>, <code>RIGHT</code>
+     */
     private void copyJsonContent(ContentDirection direction) {
         String jsonStringToCopy = null;
         if (direction.equals(ContentDirection.LEFT)) {
@@ -155,10 +161,19 @@ public class MainPanel extends JPanel {
         }
     }
 
+    /**
+     * Transforms the contents of one editor to another based on the given direction
+     * @param direction One of the following directions
+     *          defined in <code>ContentDirection</code>:
+     *          <code>LEFT</code>, <code>RIGHT</code>
+     */
     private void transformJsonContent(ContentDirection direction) {
         System.err.println("Unimplemented method 'transformJsonContent'");
     }
 
+    /**
+     * Compares the contents of both editors
+     */
     private void compareJsonContent() {
         System.err.println("Unimplemented method 'compareJsonContent'");
     }
