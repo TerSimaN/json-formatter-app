@@ -13,7 +13,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
-import javax.swing.event.DocumentEvent.EventType;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.Document;
@@ -81,11 +80,11 @@ public class JsonEditorPanel extends JPanel {
 
     /**
      * Create a file controls JPanel with the specified layout manager
-     * @param layout the LayoutManager to use
+     * @param flowLayout the FlowLayout to use
      * @return the panel
      */
-    private JPanel createFileControlsPanel(LayoutManager layout) {
-        JPanel panel = new JPanel(layout);
+    private JPanel createFileControlsPanel(LayoutManager flowLayout) {
+        JPanel panel = new JPanel(flowLayout);
 
         fileNameField = new JTextField(20);
         panel.add(fileNameField);
@@ -117,11 +116,11 @@ public class JsonEditorPanel extends JPanel {
 
     /**
      * Create a control options JPanel with the specified layout manager
-     * @param layout the LayoutManager to use
+     * @param flowLayout the FlowLayout to use
      * @return the panel
      */
-    private JPanel createControlOptionsPanel(LayoutManager layout) {
-        JPanel panel = new JPanel(layout);
+    private JPanel createControlOptionsPanel(LayoutManager flowLayout) {
+        JPanel panel = new JPanel(flowLayout);
 
         JButton formatJsonButton = new JButton(ImageIconConstants.formatJsonIcon);
         formatJsonButton.setPreferredSize(iconBtnPreferredSize);
@@ -408,28 +407,11 @@ public class JsonEditorPanel extends JPanel {
 
         private void displayEventInfo(DocumentEvent e) {
             Document document = e.getDocument();
-            int changeLength = e.getLength();
-            EventType eventType = e.getType();
             int documentLength = document.getLength();
+            int changeLength = e.getLength();
+            String eventType = e.getType().toString();
             System.out.printf("%1$s: %2$d character%3$s Text length = %4$d.\n",
-                eventType.toString(), changeLength, ((changeLength == 1) ? "," : "s,"), documentLength);
-            
-            System.out.print("Last edit: ");
-            if (undoableEdit != null) {
-                if (eventType == EventType.INSERT) {
-                    System.out.println(undoableEdit.getPresentationName());
-                }
-
-                if (eventType == EventType.REMOVE) {
-                    System.out.println(undoableEdit.getPresentationName());
-                }
-
-                if (eventType == EventType.CHANGE) {
-                    System.out.println(undoableEdit.getPresentationName());
-                }
-            } else {
-                System.out.println("none");
-            }
+                eventType, changeLength, ((changeLength == 1) ? "," : "s,"), documentLength);
         }
     }
 }
