@@ -38,6 +38,8 @@ public class JsonEditorPanel extends JPanel {
 
     private FileNameExtensionFilter filter;
     private FlowLayout customFlowLayout;
+    private String lastOpenDirectoryPath;
+    private String lastSaveDirectoryPath;
 
     // Undo and redo helpers
     protected UndoListener undoListener;
@@ -53,6 +55,8 @@ public class JsonEditorPanel extends JPanel {
 
         filter = new FileNameExtensionFilter("JSON files (*.json)", "json");
         customFlowLayout = new FlowLayout(FlowLayout.LEADING, 5, 0);
+        lastOpenDirectoryPath = null;
+        lastSaveDirectoryPath = null;
 
         JPanel fileControlsPanel = createFileControlsPanel(customFlowLayout);
         JPanel controlOptionsPanel = createControlOptionsPanel(customFlowLayout);
@@ -176,10 +180,11 @@ public class JsonEditorPanel extends JPanel {
     }
 
     private void open() {
-        JFileChooser fileOpen = new JFileChooser("D:");
+        JFileChooser fileOpen = new JFileChooser(this.lastOpenDirectoryPath);
         fileOpen.setFileFilter(filter);
         int returnValue = fileOpen.showOpenDialog(this);
         if (returnValue == JFileChooser.APPROVE_OPTION) {
+            this.lastOpenDirectoryPath = fileOpen.getCurrentDirectory().getPath();
             loadFile(fileOpen.getSelectedFile());
         } else {
             System.out.println("Open command canceled by user.");
@@ -187,7 +192,7 @@ public class JsonEditorPanel extends JPanel {
     }
 
     private void save() {
-        JFileChooser fileSave = new JFileChooser("D:");
+        JFileChooser fileSave = new JFileChooser(this.lastSaveDirectoryPath);
         fileSave.setFileFilter(filter);
         String fileName = fileNameField.getText();
         if (!fileName.equals("")) {
@@ -198,6 +203,7 @@ public class JsonEditorPanel extends JPanel {
         
         int returnValue = fileSave.showSaveDialog(this);
         if (returnValue == JFileChooser.APPROVE_OPTION) {
+            this.lastSaveDirectoryPath = fileSave.getCurrentDirectory().getPath();
             saveFile(fileSave.getSelectedFile());
         } else {
             System.out.println("Save command canceled by user.");
