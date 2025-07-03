@@ -8,6 +8,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.undo.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -15,6 +16,7 @@ import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.AbstractDocument;
+import javax.swing.text.Caret;
 import javax.swing.text.Document;
 
 import com.google.gson.*;
@@ -27,18 +29,23 @@ public class JsonEditorPanel extends JPanel {
     private Gson prettyPrintSerializeNullsGsonBuilder = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
     private JsonStringParser jsonStringParser = new JsonStringParser();
 
+    private FileNameExtensionFilter filter;
+    private FlowLayout leadingFlowLayout;
+    private Dimension iconBtnPreferredSize = new Dimension(30, 30);
+
+    // File controls panel
+    private JTextField fileNameField;
     private JButton newButton;
     private JButton openButton;
     private JButton saveButton;
     private JButton copyButton;
-    private JTextField fileNameField;
+    private String lastOpenDirectoryPath = null;
+    private String lastSaveDirectoryPath = null;
+    
+    // Json text area
     private JTextArea jsonTextArea;
-    private Dimension iconBtnPreferredSize = new Dimension(30, 30);
-
-    private FileNameExtensionFilter filter;
-    private FlowLayout customFlowLayout;
-    private String lastOpenDirectoryPath;
-    private String lastSaveDirectoryPath;
+    private Caret caret;
+    private JLabel caretLabel;
 
     // Undo and redo helpers
     protected UndoListener undoListener;
@@ -53,29 +60,25 @@ public class JsonEditorPanel extends JPanel {
         this.addComponentListener(new PanelEventListener());
 
         filter = new FileNameExtensionFilter("JSON files (*.json)", "json");
-        customFlowLayout = new FlowLayout(FlowLayout.LEADING, 5, 0);
-        lastOpenDirectoryPath = null;
-        lastSaveDirectoryPath = null;
+        leadingFlowLayout = new FlowLayout(FlowLayout.LEADING, 5, 0);
 
-        JPanel fileControlsPanel = createFileControlsPanel(customFlowLayout);
-        JPanel controlOptionsPanel = createControlOptionsPanel(customFlowLayout);
-
-        // Text area
-        jsonTextArea = new JTextArea();
-        jsonTextArea.getDocument().addUndoableEditListener(new JsonUndoableEditListener());
-        jsonTextArea.getDocument().addDocumentListener(new TextAreaDocumentListener());
-        jsonTextArea.setMargin(new Insets(2, 5, 2, 5));
-        
-        JScrollPane jsonScrollPane = new JScrollPane(jsonTextArea);
-        jsonScrollPane.setPreferredSize(new Dimension(0, 650));
-        jsonScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        jsonScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        JPanel fileControlsPanel = createFileControlsPanel(leadingFlowLayout);
+        JPanel controlOptionsPanel = createControlOptionsPanel(leadingFlowLayout);
+        JPanel editorTextAreaPanel = createTextAreaPanel();
 
         this.add(fileControlsPanel);
         this.add(Box.createVerticalStrut(5));
         this.add(controlOptionsPanel);
         this.add(Box.createVerticalStrut(5));
-        this.add(jsonScrollPane);
+        this.add(editorTextAreaPanel);
+    }
+
+    public String getJsonText() {
+        return jsonTextArea.getText();
+    }
+
+    public void setJsonText(String jsonText) {
+        jsonTextArea.setText(jsonText);
     }
 
     /**
@@ -157,21 +160,81 @@ public class JsonEditorPanel extends JPanel {
         return panel;
     }
 
-    public String getJsonText() {
-        return jsonTextArea.getText();
+    /**
+     * Create a editor text area JPanel
+     * @return the panel
+     */
+    private JPanel createTextAreaPanel() {
+        Border lineBorder = BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1);
+        JPanel panel = new JPanel(new BorderLayout());
+
+        jsonTextArea = new JTextArea();
+        jsonTextArea.getDocument().addUndoableEditListener(new JsonUndoableEditListener());
+        jsonTextArea.getDocument().addDocumentListener(new TextAreaDocumentListener());
+        jsonTextArea.setMargin(new Insets(2, 5, 2, 5));
+        
+        caret = jsonTextArea.getCaret();
+        caret.addChangeListener(e -> updateCaretLabel());
+        
+        JScrollPane jsonScrollPane = new JScrollPane(jsonTextArea);
+        jsonScrollPane.setPreferredSize(new Dimension(0, 650));
+        jsonScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        jsonScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        panel.add(jsonScrollPane, BorderLayout.CENTER);
+
+        JPanel caretPanel = new JPanel(leadingFlowLayout);
+        caretPanel.setBorder(lineBorder);
+        caretLabel = new JLabel("Line: 0 Column: 0");
+        caretPanel.add(caretLabel);
+        panel.add(caretPanel, BorderLayout.SOUTH);
+
+        return panel;
     }
 
-    public void setJsonText(String jsonText) {
-        jsonTextArea.setText(jsonText);
+    private void prettyPrintJson() {
+        String jsonString = jsonTextArea.getText();
+        if (!jsonString.isEmpty()) {
+            try {
+                JsonElement parsedJsonElement = jsonStringParser.parseJsonString(jsonString);
+                String prettyPrintedJsonString = prettyPrintSerializeNullsGsonBuilder.toJson(parsedJsonElement);
+                jsonTextArea.setText(prettyPrintedJsonString);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void compactPrintJson() {
+        String jsonString = jsonTextArea.getText();
+        if (!jsonString.isEmpty()) {
+            try {
+                JsonElement parsedJsonElement = jsonStringParser.parseJsonString(jsonString);
+                String compactJsonString = serializeNullsGsonBuilder.toJson(parsedJsonElement);
+                jsonTextArea.setText(compactJsonString);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void updateCaretLabel() {
+        int dotPosition = caret.getDot();
+        int markPosition = caret.getMark();
+        String labelText = String.format("Line: %1$d Column: %2$d", dotPosition, markPosition);
+        caretLabel.setText(labelText);
+
+        // System.out.printf("Caret dot: %1$d, Caret mark: %2$d\n", dotPosition, markPosition);
+        System.out.println("Text area caret position: " + jsonTextArea.getCaretPosition());
     }
 
     private void printDebugInfo() {
         System.out.println("UndoManager info: " + undoManager);
+        System.out.println("TextArea line count: " + jsonTextArea.getLineCount());
 
-        Document doc = jsonTextArea.getDocument();
-        if (doc instanceof AbstractDocument) {
-            System.out.println("jsonTextArea is an instance of AbstractDocument");
-        }
+        // Document doc = jsonTextArea.getDocument();
+        // if (doc instanceof AbstractDocument) {
+        //     System.out.println("jsonTextArea is an instance of AbstractDocument");
+        // }
 
         // System.out.println("JButton MinimumSize: " + copyButton.getMinimumSize());
         // System.out.println("JButton PreferredSize: " + copyButton.getPreferredSize());
@@ -234,32 +297,6 @@ public class JsonEditorPanel extends JPanel {
             writer.write(jsonString);
         } catch (IOException e) {
             System.out.println("Couldn't write to file: " + e.getMessage());
-        }
-    }
-
-    private void prettyPrintJson() {
-        String jsonString = jsonTextArea.getText();
-        if (!jsonString.isEmpty()) {
-            try {
-                JsonElement parsedJsonElement = jsonStringParser.parseJsonString(jsonString);
-                String prettyPrintedJsonString = prettyPrintSerializeNullsGsonBuilder.toJson(parsedJsonElement);
-                jsonTextArea.setText(prettyPrintedJsonString);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void compactPrintJson() {
-        String jsonString = jsonTextArea.getText();
-        if (!jsonString.isEmpty()) {
-            try {
-                JsonElement parsedJsonElement = jsonStringParser.parseJsonString(jsonString);
-                String compactJsonString = serializeNullsGsonBuilder.toJson(parsedJsonElement);
-                jsonTextArea.setText(compactJsonString);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 
