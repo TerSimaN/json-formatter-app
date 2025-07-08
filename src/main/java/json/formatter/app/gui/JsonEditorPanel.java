@@ -66,6 +66,7 @@ public class JsonEditorPanel extends JPanel {
         JPanel fileControlsPanel = createFileControlsPanel(leadingFlowLayout);
         JPanel controlOptionsPanel = createControlOptionsPanel(leadingFlowLayout);
         JPanel editorTextAreaPanel = createTextAreaPanel();
+        updateCaretLabel();
 
         this.add(fileControlsPanel);
         this.add(Box.createVerticalStrut(5));
@@ -166,13 +167,12 @@ public class JsonEditorPanel extends JPanel {
      * @return the panel
      */
     private JPanel createTextAreaPanel() {
-        Border lineBorder = BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1);
         JPanel panel = new JPanel(new BorderLayout());
 
         jsonTextArea = new JTextArea();
+        jsonTextArea.setMargin(new Insets(2, 5, 2, 5));
         jsonTextArea.getDocument().addUndoableEditListener(new JsonUndoableEditListener());
         jsonTextArea.getDocument().addDocumentListener(new TextAreaDocumentListener());
-        jsonTextArea.setMargin(new Insets(2, 5, 2, 5));
         
         caret = jsonTextArea.getCaret();
         caret.addChangeListener(e -> updateCaretLabel());
@@ -184,8 +184,8 @@ public class JsonEditorPanel extends JPanel {
         panel.add(jsonScrollPane, BorderLayout.CENTER);
 
         JPanel caretPanel = new JPanel(leadingFlowLayout);
-        caretPanel.setBorder(lineBorder);
-        caretLabel = new JLabel("Line: 1 Column: 1");
+        caretPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        caretLabel = new JLabel();
         caretPanel.add(caretLabel);
         panel.add(caretPanel, BorderLayout.SOUTH);
 
