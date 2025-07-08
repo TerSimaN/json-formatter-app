@@ -16,6 +16,7 @@ import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.AbstractDocument;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
 import javax.swing.text.Document;
 
@@ -184,7 +185,7 @@ public class JsonEditorPanel extends JPanel {
 
         JPanel caretPanel = new JPanel(leadingFlowLayout);
         caretPanel.setBorder(lineBorder);
-        caretLabel = new JLabel("Line: 0 Column: 0");
+        caretLabel = new JLabel("Line: 1 Column: 1");
         caretPanel.add(caretLabel);
         panel.add(caretPanel, BorderLayout.SOUTH);
 
@@ -220,16 +221,30 @@ public class JsonEditorPanel extends JPanel {
     private void updateCaretLabel() {
         int dotPosition = caret.getDot();
         int markPosition = caret.getMark();
-        String labelText = String.format("Line: %1$d Column: %2$d", dotPosition, markPosition);
-        caretLabel.setText(labelText);
+        
+        int currentLine = 0;
+        int currentColumn = 0;
+        try {
+            currentLine = jsonTextArea.getLineOfOffset(dotPosition);
+            currentColumn = dotPosition - jsonTextArea.getLineStartOffset(currentLine);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
 
-        // System.out.printf("Caret dot: %1$d, Caret mark: %2$d\n", dotPosition, markPosition);
-        System.out.println("Text area caret position: " + jsonTextArea.getCaretPosition());
+        int selectedChars = 0;
+        if (dotPosition > markPosition) {
+            selectedChars = dotPosition - markPosition;
+        } else if (markPosition > dotPosition) {
+            selectedChars = markPosition - dotPosition;
+        }
+        String selectedCharsString = (selectedChars > 0) ? String.format(" (%1$d selected)", selectedChars) : "";
+
+        String labelText = String.format("Line: %1$d Column: %2$d%3$s", currentLine + 1, currentColumn + 1, selectedCharsString);
+        caretLabel.setText(labelText);
     }
 
     private void printDebugInfo() {
         System.out.println("UndoManager info: " + undoManager);
-        System.out.println("TextArea line count: " + jsonTextArea.getLineCount());
 
         // Document doc = jsonTextArea.getDocument();
         // if (doc instanceof AbstractDocument) {
@@ -447,7 +462,7 @@ public class JsonEditorPanel extends JPanel {
             int documentLength = document.getLength();
             int changeLength = e.getLength();
             String eventType = e.getType().toString();
-            System.out.printf("%1$s: %2$d character%3$s Text length = %4$d.\n",
+            System.out.printf("%1$s: %2$d character%3$s Text length = %4$d;\n",
                 eventType, changeLength, ((changeLength == 1) ? "," : "s,"), documentLength);
         }
     }
