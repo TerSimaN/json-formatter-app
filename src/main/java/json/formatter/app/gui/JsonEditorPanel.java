@@ -45,6 +45,8 @@ public class JsonEditorPanel extends JPanel {
     
     // Json text area
     private JTextArea jsonTextArea;
+    private JTextArea lineTextArea;
+    private Font defaultFont = new Font("Calibri", Font.PLAIN, 15);
     private Caret caret;
     private JLabel caretLabel;
 
@@ -67,6 +69,7 @@ public class JsonEditorPanel extends JPanel {
         JPanel controlOptionsPanel = createControlOptionsPanel(leadingFlowLayout);
         JPanel editorTextAreaPanel = createTextAreaPanel();
         updateCaretLabel();
+        updateLineTextArea();
 
         this.add(fileControlsPanel);
         this.add(Box.createVerticalStrut(5));
@@ -170,14 +173,27 @@ public class JsonEditorPanel extends JPanel {
         JPanel panel = new JPanel(new BorderLayout());
 
         jsonTextArea = new JTextArea();
+        jsonTextArea.setFont(defaultFont);
         jsonTextArea.setMargin(new Insets(2, 5, 2, 5));
         jsonTextArea.getDocument().addUndoableEditListener(new JsonUndoableEditListener());
         jsonTextArea.getDocument().addDocumentListener(new TextAreaDocumentListener());
         
         caret = jsonTextArea.getCaret();
         caret.addChangeListener(e -> updateCaretLabel());
+
+        lineTextArea = new JTextArea();
+        lineTextArea.setFont(defaultFont);
+        lineTextArea.setMargin(new Insets(2, 5, 2, 5));
+        lineTextArea.setPreferredSize(new Dimension(59, 0));
+        lineTextArea.setEditable(false);
+        lineTextArea.setFocusable(false);
+        lineTextArea.setBackground(Color.LIGHT_GRAY);
+
+        JPanel jsonPanel = new JPanel(new BorderLayout());
+        jsonPanel.add(lineTextArea, BorderLayout.WEST);
+        jsonPanel.add(jsonTextArea, BorderLayout.CENTER);
         
-        JScrollPane jsonScrollPane = new JScrollPane(jsonTextArea);
+        JScrollPane jsonScrollPane = new JScrollPane(jsonPanel);
         jsonScrollPane.setPreferredSize(new Dimension(0, 650));
         jsonScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         jsonScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -243,6 +259,18 @@ public class JsonEditorPanel extends JPanel {
         caretLabel.setText(labelText);
     }
 
+    private void updateLineTextArea() {
+        int lineCount = jsonTextArea.getLineCount();
+        if (lineCount > 0) {
+            String lineNumbers = "";
+            for (int i = 1; i <= lineCount; i++) {
+                lineNumbers += String.format("%1$d\n", i);
+            }
+
+            lineTextArea.setText(lineNumbers);
+        }
+    }
+
     private void printDebugInfo() {
         System.out.println("UndoManager info: " + undoManager);
 
@@ -254,6 +282,20 @@ public class JsonEditorPanel extends JPanel {
         // System.out.println("JButton MinimumSize: " + copyButton.getMinimumSize());
         // System.out.println("JButton PreferredSize: " + copyButton.getPreferredSize());
         // System.out.println("JButton MaximumSize: " + copyButton.getMaximumSize());
+        
+        Graphics graphics = jsonTextArea.getGraphics();
+        Font font = graphics.getFont();
+        FontMetrics fontMetrics = graphics.getFontMetrics(font);
+        System.out.printf("Font: Name=%1$s, FontName=%2$s, Family=%3$s, Style=%4$d, Size=%5$d;\n",
+            font.getName(), font.getFontName(), font.getFamily(), font.getStyle(), font.getSize());
+        System.out.printf("FontMetrics: Ascent=%1$d, Descent=%2$d, Leading=%3$d, Height=%4$d;\n",
+            fontMetrics.getAscent(), fontMetrics.getDescent(), fontMetrics.getLeading(), fontMetrics.getHeight());
+        
+        // GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        // System.out.println("AvailableFontFamilyNames:");
+        // for (String fontFamilyName : graphicsEnvironment.getAvailableFontFamilyNames()) {
+        //     System.out.printf("%1$s;\n", fontFamilyName);
+        // }
     }
 
     private void open() {
@@ -445,11 +487,13 @@ public class JsonEditorPanel extends JPanel {
         @Override
         public void insertUpdate(DocumentEvent e) {
             displayEventInfo(e);
+            updateLineTextArea();
         }
 
         @Override
         public void removeUpdate(DocumentEvent e) {
             displayEventInfo(e);
+            updateLineTextArea();
         }
 
         @Override
@@ -462,7 +506,7 @@ public class JsonEditorPanel extends JPanel {
             int documentLength = document.getLength();
             int changeLength = e.getLength();
             String eventType = e.getType().toString();
-            System.out.printf("%1$s: %2$d character%3$s Text length = %4$d;\n",
+            System.out.printf("%1$s: %2$d character%3$s Text length: %4$d;\n",
                 eventType, changeLength, ((changeLength == 1) ? "," : "s,"), documentLength);
         }
     }
