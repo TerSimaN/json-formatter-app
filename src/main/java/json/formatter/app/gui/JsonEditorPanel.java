@@ -44,8 +44,6 @@ public class JsonEditorPanel extends JPanel {
     
     // Json text area
     private JTextArea jsonTextArea;
-    private JTextArea lineTextArea;
-    private Font defaultFont = new Font("Calibri", Font.PLAIN, 15);
     private Caret caret;
     private JLabel caretLabel;
 
@@ -68,7 +66,6 @@ public class JsonEditorPanel extends JPanel {
         JPanel controlOptionsPanel = createControlOptionsPanel(leadingFlowLayout);
         JPanel editorTextAreaPanel = createTextAreaPanel();
         updateCaretLabel();
-        updateLineTextArea();
 
         this.add(fileControlsPanel);
         this.add(Box.createVerticalStrut(5));
@@ -177,27 +174,14 @@ public class JsonEditorPanel extends JPanel {
         JPanel panel = new JPanel(new BorderLayout());
 
         jsonTextArea = new JTextArea();
-        jsonTextArea.setFont(defaultFont);
         jsonTextArea.setMargin(new Insets(2, 5, 2, 5));
         jsonTextArea.getDocument().addUndoableEditListener(new JsonUndoableEditListener());
         jsonTextArea.getDocument().addDocumentListener(new TextAreaDocumentListener());
         
         caret = jsonTextArea.getCaret();
         caret.addChangeListener(e -> updateCaretLabel());
-
-        lineTextArea = new JTextArea();
-        lineTextArea.setFont(defaultFont);
-        lineTextArea.setMargin(new Insets(2, 5, 2, 5));
-        lineTextArea.setPreferredSize(new Dimension(59, 0));
-        lineTextArea.setEditable(false);
-        lineTextArea.setFocusable(false);
-        lineTextArea.setBackground(Color.LIGHT_GRAY);
-
-        JPanel jsonPanel = new JPanel(new BorderLayout());
-        jsonPanel.add(lineTextArea, BorderLayout.WEST);
-        jsonPanel.add(jsonTextArea, BorderLayout.CENTER);
         
-        JScrollPane jsonScrollPane = new JScrollPane(jsonPanel);
+        JScrollPane jsonScrollPane = new JScrollPane(jsonTextArea);
         jsonScrollPane.setPreferredSize(new Dimension(0, 650));
         jsonScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         jsonScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -261,18 +245,6 @@ public class JsonEditorPanel extends JPanel {
 
         String labelText = String.format("Line: %1$d Column: %2$d%3$s", currentLine + 1, currentColumn + 1, selectedCharsString);
         caretLabel.setText(labelText);
-    }
-
-    private void updateLineTextArea() {
-        int lineCount = jsonTextArea.getLineCount();
-        if (lineCount > 0) {
-            String lineNumbers = "";
-            for (int i = 1; i <= lineCount; i++) {
-                lineNumbers += String.format("%1$d\n", i);
-            }
-
-            lineTextArea.setText(lineNumbers);
-        }
     }
 
     private void printDebugInfo() {
@@ -491,13 +463,11 @@ public class JsonEditorPanel extends JPanel {
         @Override
         public void insertUpdate(DocumentEvent e) {
             displayEventInfo(e);
-            updateLineTextArea();
         }
 
         @Override
         public void removeUpdate(DocumentEvent e) {
             displayEventInfo(e);
-            updateLineTextArea();
         }
 
         @Override
