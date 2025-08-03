@@ -8,7 +8,6 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.undo.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -98,6 +97,7 @@ public class JsonEditorPanel extends JPanel {
         panel.add(fileNameField);
         
         newButton = new JButton("New", ImageIconConstants.newFileIcon);
+        newButton.setToolTipText("New empty document");
         newButton.addActionListener(e -> {
             fileNameField.setText("New document");
             jsonTextArea.setText(null);
@@ -106,6 +106,7 @@ public class JsonEditorPanel extends JPanel {
         panel.add(newButton);
 
         openButton = new JButton("Open", ImageIconConstants.openFileIcon);
+        openButton.setToolTipText("Open a JSON file");
         openButton.addActionListener(e -> {
             open();
             updateUndoRedoManagerState();
@@ -113,10 +114,13 @@ public class JsonEditorPanel extends JPanel {
         panel.add(openButton);
 
         saveButton = new JButton("Save", ImageIconConstants.saveFileIcon);
+        saveButton.setToolTipText("Save file");
         saveButton.addActionListener(e -> save());
         panel.add(saveButton);
 
         copyButton = new JButton("Copy", ImageIconConstants.copyFileIcon);
+        copyButton.setToolTipText("Copy");
+        copyButton.addActionListener(e -> System.err.println("Unimplemented method 'copy'"));
         panel.add(copyButton);
 
         return panel;
