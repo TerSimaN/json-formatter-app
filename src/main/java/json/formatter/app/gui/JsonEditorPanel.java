@@ -14,7 +14,6 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
 import javax.swing.text.Document;
@@ -185,6 +184,8 @@ public class JsonEditorPanel extends JPanel {
         jsonScrollPane.setPreferredSize(new Dimension(0, 650));
         jsonScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         jsonScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        jsonScrollPane.getVerticalScrollBar().setUnitIncrement(20);
+        jsonScrollPane.getHorizontalScrollBar().setUnitIncrement(20);
         panel.add(jsonScrollPane, BorderLayout.CENTER);
 
         JPanel caretPanel = new JPanel(leadingFlowLayout);
@@ -250,27 +251,21 @@ public class JsonEditorPanel extends JPanel {
     private void printDebugInfo() {
         System.out.println("UndoManager info: " + undoManager);
 
-        // Document doc = jsonTextArea.getDocument();
-        // if (doc instanceof AbstractDocument) {
-        //     System.out.println("jsonTextArea is an instance of AbstractDocument");
-        // }
-
-        // System.out.println("JButton MinimumSize: " + copyButton.getMinimumSize());
-        // System.out.println("JButton PreferredSize: " + copyButton.getPreferredSize());
-        // System.out.println("JButton MaximumSize: " + copyButton.getMaximumSize());
+        // System.out.printf("JButton Size: [Minimum=%1$d, Preferred=%2$d, Maximum=%3$d]\n",
+        //     copyButton.getMinimumSize(), copyButton.getPreferredSize(), copyButton.getMaximumSize());
         
         Graphics graphics = jsonTextArea.getGraphics();
         Font font = graphics.getFont();
         FontMetrics fontMetrics = graphics.getFontMetrics(font);
-        System.out.printf("Font: Name=%1$s, FontName=%2$s, Family=%3$s, Style=%4$d, Size=%5$d;\n",
+        System.out.printf("Font: [Name=%1$s, FontName=%2$s, Family=%3$s, Style=%4$d, Size=%5$d];\n",
             font.getName(), font.getFontName(), font.getFamily(), font.getStyle(), font.getSize());
-        System.out.printf("FontMetrics: Ascent=%1$d, Descent=%2$d, Leading=%3$d, Height=%4$d;\n",
+        System.out.printf("FontMetrics: [Ascent=%1$d, Descent=%2$d, Leading=%3$d, Height=%4$d];\n",
             fontMetrics.getAscent(), fontMetrics.getDescent(), fontMetrics.getLeading(), fontMetrics.getHeight());
         
         // GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
         // System.out.println("AvailableFontFamilyNames:");
         // for (String fontFamilyName : graphicsEnvironment.getAvailableFontFamilyNames()) {
-        //     System.out.printf("%1$s;\n", fontFamilyName);
+        //     System.out.println(fontFamilyName + ";");
         // }
     }
 
@@ -341,14 +336,10 @@ public class JsonEditorPanel extends JPanel {
 
     // Class listening for edits that can be undone
     protected class JsonUndoableEditListener implements UndoableEditListener {
-        private int eventNumber = 0;
-
         @Override
         public void undoableEditHappened(UndoableEditEvent e) {
-            eventNumber++;
             undoableEdit = e.getEdit();
-            // System.out.printf("UndoableEditEvent No. %1$d: PresentationName: %2$s\n",
-            //     eventNumber, undoableEdit.getPresentationName());
+            // System.out.println("UndoableEdit.PresentationName: " + undoableEdit.getPresentationName());
             
             undoManager.addEdit(undoableEdit);
             undoListener.updateUndoState();
