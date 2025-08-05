@@ -9,8 +9,8 @@ import json.formatter.app.constants.ImageIconConstants;
 public class MainPanel extends JPanel {
     private GridLayout gridLayout;
     private FlowLayout customFlowLayout;
-    private JsonEditorPanel leftJsonEditorPanel;
-    private JsonEditorPanel rightJsonEditorPanel;
+    private JsonSyntaxEditorPanel leftJsonEditorPanel;
+    private JsonSyntaxEditorPanel rightJsonEditorPanel;
 
     MainPanel() {
         this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -18,8 +18,8 @@ public class MainPanel extends JPanel {
 
         gridLayout = new GridLayout(2, 1);
         customFlowLayout = new FlowLayout(FlowLayout.CENTER, 10, 0);
-        leftJsonEditorPanel = new JsonEditorPanel();
-        rightJsonEditorPanel = new JsonEditorPanel();
+        leftJsonEditorPanel = new JsonSyntaxEditorPanel();
+        rightJsonEditorPanel = new JsonSyntaxEditorPanel();
 
         JPanel jsonCopyPanel = createCopyPanel(gridLayout, customFlowLayout);
         JPanel jsonTransformPanel = createTransformPanel(gridLayout, customFlowLayout);
