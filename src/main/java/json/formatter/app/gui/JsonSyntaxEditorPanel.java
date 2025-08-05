@@ -10,6 +10,7 @@ import java.awt.event.ComponentEvent;
 import javax.swing.*;
 
 import org.fife.ui.rsyntaxtextarea.*;
+import org.fife.ui.rsyntaxtextarea.parser.*;
 import org.fife.ui.rtextarea.*;
 
 import javax.swing.event.DocumentEvent;
@@ -176,6 +177,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
         jsonSyntaxTextArea = new RSyntaxTextArea();
         jsonSyntaxTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
         jsonSyntaxTextArea.setCodeFoldingEnabled(true);
+        jsonSyntaxTextArea.addParser(new TextAreaParser());
 
         jsonSyntaxTextArea.getDocument().addUndoableEditListener(new JsonUndoableEditListener());
         jsonSyntaxTextArea.getDocument().addDocumentListener(new TextAreaDocumentListener());
@@ -388,6 +390,15 @@ public class JsonSyntaxEditorPanel extends JPanel {
                 component.setEnabled(false);
             }
         }   
+    }
+
+    class TextAreaParser extends AbstractParser {
+        @Override
+        public ParseResult parse(RSyntaxDocument arg0, String arg1) {
+            DefaultParseResult result = new DefaultParseResult(this);
+            result.addNotice(new DefaultParserNotice(this, "Message", 0));
+            return result;
+        }
     }
 
     // Custom event listener classes
