@@ -374,7 +374,9 @@ public class JsonSyntaxEditorPanel extends JPanel {
 
                     if (command.equals("prettyJson")) {
                         formattedJsonString = prettyPrintSerializeNullsGsonBuilder.toJson(parsedJsonElement);
-                    } else if (command.equals("compactJson")) {
+                    }
+                    
+                    if (command.equals("compactJson")) {
                         formattedJsonString = serializeNullsGsonBuilder.toJson(parsedJsonElement);
                     }
 
