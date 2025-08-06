@@ -6,7 +6,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.*;
 
-import json.formatter.app.constants.ContentDirection;
 import json.formatter.app.constants.ImageIconConstants;
 
 public class MainPanel extends JPanel {
@@ -97,12 +96,14 @@ public class MainPanel extends JPanel {
         JPanel btnTransformPanel = new JPanel(flowLayout);
         JButton transformRightToLeftBtn = new JButton(ImageIconConstants.arrowLeftBoldIcon);
         transformRightToLeftBtn.setToolTipText("Transform the contents of the right panel into the left panel");
-        transformRightToLeftBtn.addActionListener(e -> transformJsonContent(ContentDirection.LEFT));
+        transformRightToLeftBtn.setActionCommand("transformRightToLeft");
+        transformRightToLeftBtn.addActionListener(new TransformContentListener());
         btnTransformPanel.add(transformRightToLeftBtn);
         
         JButton transformLeftToRightBtn = new JButton(ImageIconConstants.arrowRightBoldIcon);
         transformLeftToRightBtn.setToolTipText("Transform the contents of the left panel into the right panel");
-        transformLeftToRightBtn.addActionListener(e -> transformJsonContent(ContentDirection.RIGHT));
+        transformLeftToRightBtn.setActionCommand("transformLeftToRight");
+        transformLeftToRightBtn.addActionListener(new TransformContentListener());
         btnTransformPanel.add(transformLeftToRightBtn);
         
         transformPanel.add(btnTransformPanel);
@@ -144,16 +145,6 @@ public class MainPanel extends JPanel {
     }
 
     /**
-     * Transforms the contents of one editor to another based on the given direction
-     * @param direction One of the following directions
-     *          defined in <code>ContentDirection</code>:
-     *          <code>LEFT</code>, <code>RIGHT</code>
-     */
-    private void transformJsonContent(ContentDirection direction) {
-        System.err.println("Unimplemented method 'transformJsonContent'");
-    }
-
-    /**
      * Compares the contents of both editors
      */
     private void compareJsonContent() {
@@ -187,6 +178,21 @@ public class MainPanel extends JPanel {
                         (fileNameString.isEmpty() || fileNameString.isBlank())) {
                     leftJsonEditorPanel.setFileName("New document");
                 }
+            }
+        }
+    }
+
+    class TransformContentListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String command = e.getActionCommand();
+
+            if (command.equals("transformLeftToRight")) {
+                System.err.println("Unimplemented method 'transformLeftToRightJsonContent'");
+            }
+
+            if (command.equals("transformRightToLeft")) {
+                System.err.println("Unimplemented method 'transformRightToLeftJsonContent'");
             }
         }
     }
