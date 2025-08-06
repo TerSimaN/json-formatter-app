@@ -8,21 +8,15 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
 import javax.swing.*;
-
-import org.fife.ui.rsyntaxtextarea.*;
-import org.fife.ui.rsyntaxtextarea.parser.*;
-import org.fife.ui.rtextarea.*;
-
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
-import javax.swing.text.Document;
 
 import com.google.gson.*;
+import org.fife.ui.rsyntaxtextarea.*;
+import org.fife.ui.rtextarea.*;
 
 import json.formatter.app.constants.ImageIconConstants;
 import json.formatter.app.json.JsonStringParser;
@@ -46,7 +40,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
     private String lastSaveDirectoryPath = null;
     
     // Json RSyntax text area
-    private RSyntaxTextArea jsonSyntaxTextArea;
+    private TextEditorPane jsonSyntaxTextArea;
     private Caret caret;
     private JLabel caretLabel;
 
@@ -74,13 +68,25 @@ public class JsonSyntaxEditorPanel extends JPanel {
         this.add(Box.createVerticalStrut(5));
         this.add(editorTextAreaPanel);
     }
+
+    public String getFileName() {
+        return fileNameField.getText();
+    }
+
+    public void setFileName(String fileName) {
+        if (!fileName.isEmpty()) {
+            fileNameField.setText(fileName);
+        }
+    }
     
     public String getJsonText() {
         return jsonSyntaxTextArea.getText();
     }
 
     public void setJsonText(String jsonText) {
-        jsonSyntaxTextArea.setText(jsonText);
+        if (!jsonText.isEmpty()) {
+            jsonSyntaxTextArea.setText(jsonText);
+        }
     }
 
     /**
@@ -105,10 +111,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
 
         openButton = new JButton("Open", ImageIconConstants.openFileIcon);
         openButton.setToolTipText("Open a JSON file");
-        openButton.addActionListener(e -> {
-            open();
-            updateUndoRedoState();
-        });
+        openButton.addActionListener(e -> open());
         panel.add(openButton);
 
         saveButton = new JButton("Save", ImageIconConstants.saveFileIcon);
@@ -176,12 +179,10 @@ public class JsonSyntaxEditorPanel extends JPanel {
     private JPanel createSyntaxTextAreaPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
-        jsonSyntaxTextArea = new RSyntaxTextArea();
+        jsonSyntaxTextArea = new TextEditorPane();
         jsonSyntaxTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
         jsonSyntaxTextArea.setCodeFoldingEnabled(true);
-
         jsonSyntaxTextArea.getDocument().addUndoableEditListener(new JsonUndoableEditListener());
-        jsonSyntaxTextArea.getDocument().addDocumentListener(new TextAreaDocumentListener());
 
         caret = jsonSyntaxTextArea.getCaret();
         caret.addChangeListener(e -> updateCaretLabel());
@@ -275,28 +276,21 @@ public class JsonSyntaxEditorPanel extends JPanel {
     }
 
     private void loadFile(File file) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        try {
             String fileName = file.getName().replaceFirst(".json", "");
             fileNameField.setText(fileName);
 
-            StringBuilder strBuilder = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                strBuilder.append(line + "\n");
-            }
-            
-            jsonSyntaxTextArea.setText(strBuilder.toString());
-        } catch (FileNotFoundException fe) {
-            System.out.println("File not found: " + fe.getMessage());
+            FileLocation selectedFileLocation = FileLocation.create(file);
+            jsonSyntaxTextArea.load(selectedFileLocation);
         } catch (IOException e) {
             System.out.println("Couldn't read file: " + e.getMessage());
         }
     }
 
     private void saveFile(File file) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            String jsonString = jsonSyntaxTextArea.getText();
-            writer.write(jsonString);
+        try {
+            FileLocation selectedFileLocation = FileLocation.create(file);
+            jsonSyntaxTextArea.saveAs(selectedFileLocation);
         } catch (IOException e) {
             System.out.println("Couldn't write to file: " + e.getMessage());
         }
@@ -434,32 +428,6 @@ public class JsonSyntaxEditorPanel extends JPanel {
                 newButton.setText("New");
                 newButton.setPreferredSize(null);
             }
-        }
-    }
-
-    class TextAreaDocumentListener implements DocumentListener {
-        @Override
-        public void insertUpdate(DocumentEvent e) {
-            displayEventInfo(e);
-        }
-
-        @Override
-        public void removeUpdate(DocumentEvent e) {
-            displayEventInfo(e);
-        }
-
-        @Override
-        public void changedUpdate(DocumentEvent e) {
-            // displayEventInfo(e);
-        }
-
-        private void displayEventInfo(DocumentEvent e) {
-            Document document = e.getDocument();
-            int documentLength = document.getLength();
-            int changeLength = e.getLength();
-            String eventType = e.getType().toString();
-            System.out.printf("%1$s: %2$d character%3$s Text length: %4$d;\n",
-                eventType, changeLength, ((changeLength == 1) ? "," : "s,"), documentLength);
         }
     }
 }
