@@ -1,6 +1,9 @@
 package json.formatter.app.gui;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.*;
 
 import json.formatter.app.constants.ContentDirection;
@@ -63,12 +66,14 @@ public class MainPanel extends JPanel {
         JPanel btnCopyPanel = new JPanel(flowLayout);
         JButton copyRightToLeftBtn = new JButton(ImageIconConstants.arrowLeftBoldIcon);
         copyRightToLeftBtn.setToolTipText("Copy the contents of the right panel to the left panel");
-        copyRightToLeftBtn.addActionListener(e -> copyJsonContent(ContentDirection.LEFT));
+        copyRightToLeftBtn.setActionCommand("copyRightToLeft");
+        copyRightToLeftBtn.addActionListener(new CopyContentListener());
         btnCopyPanel.add(copyRightToLeftBtn);
         
         JButton copyLeftToRightBtn = new JButton(ImageIconConstants.arrowRightBoldIcon);
         copyLeftToRightBtn.setToolTipText("Copy the contents of the left panel to the right panel");
-        copyLeftToRightBtn.addActionListener(e -> copyJsonContent(ContentDirection.RIGHT));
+        copyLeftToRightBtn.setActionCommand("copyLeftToRight");
+        copyLeftToRightBtn.addActionListener(new CopyContentListener());
         btnCopyPanel.add(copyLeftToRightBtn);
         
         copyPanel.add(btnCopyPanel);
@@ -139,29 +144,6 @@ public class MainPanel extends JPanel {
     }
 
     /**
-     * Copies the contents of one editor to another based on the given direction
-     * @param direction One of the following directions
-     *          defined in <code>ContentDirection</code>:
-     *          <code>LEFT</code>, <code>RIGHT</code>
-     */
-    private void copyJsonContent(ContentDirection direction) {
-        String jsonStringToCopy = null;
-        if (direction.equals(ContentDirection.LEFT)) {
-            jsonStringToCopy = rightJsonEditorPanel.getJsonText();
-            if (!jsonStringToCopy.isEmpty()) {
-                leftJsonEditorPanel.setJsonText(jsonStringToCopy);
-            }
-        }
-
-        if (direction.equals(ContentDirection.RIGHT)) {
-            jsonStringToCopy = leftJsonEditorPanel.getJsonText();
-            if (!jsonStringToCopy.isEmpty()) {
-                rightJsonEditorPanel.setJsonText(jsonStringToCopy);
-            }
-        }
-    }
-
-    /**
      * Transforms the contents of one editor to another based on the given direction
      * @param direction One of the following directions
      *          defined in <code>ContentDirection</code>:
@@ -176,5 +158,36 @@ public class MainPanel extends JPanel {
      */
     private void compareJsonContent() {
         System.err.println("Unimplemented method 'compareJsonContent'");
+    }
+
+    class CopyContentListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String command = e.getActionCommand();
+            String jsonStringToCopy = null;
+            String fileNameString = null;
+
+            if (command.equals("copyLeftToRight")) {
+                jsonStringToCopy = leftJsonEditorPanel.getJsonText();
+                rightJsonEditorPanel.setJsonText(jsonStringToCopy);
+                
+                fileNameString = rightJsonEditorPanel.getFileName();
+                if ((!jsonStringToCopy.isEmpty() || !jsonStringToCopy.isBlank()) &&
+                        (fileNameString.isEmpty() || fileNameString.isBlank())) {
+                    rightJsonEditorPanel.setFileName("New document");
+                }
+            }
+
+            if (command.equals("copyRightToLeft")) {
+                jsonStringToCopy = rightJsonEditorPanel.getJsonText();
+                leftJsonEditorPanel.setJsonText(jsonStringToCopy);
+
+                fileNameString = leftJsonEditorPanel.getFileName();
+                if ((!jsonStringToCopy.isEmpty() || !jsonStringToCopy.isBlank()) &&
+                        (fileNameString.isEmpty() || fileNameString.isBlank())) {
+                    leftJsonEditorPanel.setFileName("New document");
+                }
+            }
+        }
     }
 }
