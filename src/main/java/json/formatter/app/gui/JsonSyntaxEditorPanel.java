@@ -135,13 +135,15 @@ public class JsonSyntaxEditorPanel extends JPanel {
         JButton formatJsonButton = new JButton(ImageIconConstants.formatJsonIcon);
         formatJsonButton.setPreferredSize(iconBtnPreferredSize);
         formatJsonButton.setToolTipText("Format JSON: add proper identation and new lines");
-        formatJsonButton.addActionListener(e -> prettyPrintJson());
+        formatJsonButton.setActionCommand("prettyJson");
+        formatJsonButton.addActionListener(new FormatJsonListener());
         panel.add(formatJsonButton);
 
         JButton compactJsonButton = new JButton(ImageIconConstants.compactJsonIcon);
         compactJsonButton.setPreferredSize(iconBtnPreferredSize);
         compactJsonButton.setToolTipText("Compact JSON: remove all white spacing and new lines");
-        compactJsonButton.addActionListener(e -> compactPrintJson());
+        compactJsonButton.setActionCommand("compactJson");
+        compactJsonButton.addActionListener(new FormatJsonListener());
         panel.add(compactJsonButton);
 
         JButton undoButton = new JButton(ImageIconConstants.arrowLeftBoldIcon);
@@ -196,32 +198,6 @@ public class JsonSyntaxEditorPanel extends JPanel {
         panel.add(caretPanel, BorderLayout.SOUTH);
 
         return panel;
-    }
-
-    private void prettyPrintJson() {
-        String jsonString = jsonSyntaxTextArea.getText();
-        if (!jsonString.isEmpty()) {
-            try {
-                JsonElement parsedJsonElement = jsonStringParser.parseJsonString(jsonString);
-                String prettyPrintedJsonString = prettyPrintSerializeNullsGsonBuilder.toJson(parsedJsonElement);
-                jsonSyntaxTextArea.setText(prettyPrintedJsonString);
-            } catch (IOException e) {
-                System.err.println(e.getMessage());
-            }
-        }
-    }
-
-    private void compactPrintJson() {
-        String jsonString = jsonSyntaxTextArea.getText();
-        if (!jsonString.isEmpty()) {
-            try {
-                JsonElement parsedJsonElement = jsonStringParser.parseJsonString(jsonString);
-                String compactJsonString = serializeNullsGsonBuilder.toJson(parsedJsonElement);
-                jsonSyntaxTextArea.setText(compactJsonString);
-            } catch (IOException e) {
-                System.err.println(e.getMessage());
-            }
-        }
     }
 
     private void updateCaretLabel() {
@@ -390,6 +366,33 @@ public class JsonSyntaxEditorPanel extends JPanel {
                 component.setEnabled(false);
             }
         }   
+    }
+    
+    class FormatJsonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String command = e.getActionCommand();
+            String jsonString = jsonSyntaxTextArea.getText();
+            
+            if (!jsonString.isEmpty()) {
+                try {
+                    JsonElement parsedJsonElement = jsonStringParser.parseJsonString(jsonString);
+                    String formattedJsonString = null;
+
+                    if (command.equals("prettyJson")) {
+                        formattedJsonString = prettyPrintSerializeNullsGsonBuilder.toJson(parsedJsonElement);
+                    } else if (command.equals("compactJson")) {
+                        formattedJsonString = serializeNullsGsonBuilder.toJson(parsedJsonElement);
+                    }
+
+                    jsonSyntaxTextArea.setText(formattedJsonString);
+                } catch (IOException ioe) {
+                    System.err.println(ioe.getMessage());
+                    JOptionPane.showMessageDialog(null, ioe.getMessage(),
+                        "JSON Error Message", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
     }
 
     class TextAreaParser extends AbstractParser {
