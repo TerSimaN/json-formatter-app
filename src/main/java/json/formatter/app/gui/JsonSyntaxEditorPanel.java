@@ -179,7 +179,6 @@ public class JsonSyntaxEditorPanel extends JPanel {
         jsonSyntaxTextArea = new RSyntaxTextArea();
         jsonSyntaxTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
         jsonSyntaxTextArea.setCodeFoldingEnabled(true);
-        jsonSyntaxTextArea.addParser(new TextAreaParser());
 
         jsonSyntaxTextArea.getDocument().addUndoableEditListener(new JsonUndoableEditListener());
         jsonSyntaxTextArea.getDocument().addDocumentListener(new TextAreaDocumentListener());
@@ -392,15 +391,6 @@ public class JsonSyntaxEditorPanel extends JPanel {
                         "JSON Error Message", JOptionPane.ERROR_MESSAGE);
                 }
             }
-        }
-    }
-
-    class TextAreaParser extends AbstractParser {
-        @Override
-        public ParseResult parse(RSyntaxDocument arg0, String arg1) {
-            DefaultParseResult result = new DefaultParseResult(this);
-            result.addNotice(new DefaultParserNotice(this, "Message", 0));
-            return result;
         }
     }
 
