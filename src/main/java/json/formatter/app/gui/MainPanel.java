@@ -14,6 +14,8 @@ public class MainPanel extends JPanel {
     private JsonSyntaxEditorPanel leftJsonEditorPanel;
     private JsonSyntaxEditorPanel rightJsonEditorPanel;
 
+    private boolean isComponentUsed = false;
+
     MainPanel() {
         this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -41,12 +43,12 @@ public class MainPanel extends JPanel {
         JPanel centralPanel = new JPanel();
         centralPanel.setMaximumSize(centralPanelMaximumSize);
         centralPanel.add(controlsPanel);
-        centralPanel.setBackground(Color.MAGENTA);
+        // centralPanel.setBackground(Color.MAGENTA);
 
         this.add(leftJsonEditorPanel);
         this.add(centralPanel);
         this.add(rightJsonEditorPanel);
-        this.setBackground(Color.CYAN);
+        // this.setBackground(Color.CYAN);
     }
 
     /**
@@ -98,12 +100,14 @@ public class MainPanel extends JPanel {
         transformRightToLeftBtn.setToolTipText("Transform the contents of the right panel into the left panel");
         transformRightToLeftBtn.setActionCommand("transformRightToLeft");
         transformRightToLeftBtn.addActionListener(new TransformContentListener());
+        transformRightToLeftBtn.setEnabled(isComponentUsed);
         btnTransformPanel.add(transformRightToLeftBtn);
         
         JButton transformLeftToRightBtn = new JButton(ImageIconConstants.arrowRightBoldIcon);
         transformLeftToRightBtn.setToolTipText("Transform the contents of the left panel into the right panel");
         transformLeftToRightBtn.setActionCommand("transformLeftToRight");
         transformLeftToRightBtn.addActionListener(new TransformContentListener());
+        transformLeftToRightBtn.setEnabled(isComponentUsed);
         btnTransformPanel.add(transformLeftToRightBtn);
         
         transformPanel.add(btnTransformPanel);
@@ -137,6 +141,7 @@ public class MainPanel extends JPanel {
             compareDifferencesBtn.setToolTipText("Highlight the differences between left and right panel contents (currently enabled)");
             compareDifferencesBtn.setEnabled(!isEnabled);
         });
+        enableCompareBtnCheckBox.setEnabled(isComponentUsed);
         btnDifferencesPanel.add(enableCompareBtnCheckBox, 0);
 
         differencesPanel.add(btnDifferencesPanel);

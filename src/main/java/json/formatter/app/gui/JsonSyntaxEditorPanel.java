@@ -29,6 +29,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
     private FileNameExtensionFilter filter;
     private FlowLayout leadingFlowLayout;
     private Dimension iconBtnPreferredSize = new Dimension(30, 30);
+    private boolean isComponentUsed = false;
 
     // File controls panel
     private JTextField fileNameField;
@@ -50,7 +51,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
     
     JsonSyntaxEditorPanel() {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        this.setBackground(Color.PINK);
+        // this.setBackground(Color.PINK);
         this.setName("JsonEditorPanel");
         this.addComponentListener(new PanelEventListener());
 
@@ -122,6 +123,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
         copyButton = new JButton("Copy", ImageIconConstants.copyFileIcon);
         copyButton.setToolTipText("Copy");
         copyButton.addActionListener(e -> System.err.println("Unimplemented method 'copy'"));
+        copyButton.setEnabled(isComponentUsed);
         panel.add(copyButton);
 
         return panel;
@@ -167,7 +169,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
         JButton debugButton = new JButton();
         debugButton.setPreferredSize(iconBtnPreferredSize);
         debugButton.addActionListener(e -> printDebugInfo());
-        panel.add(debugButton);
+        // panel.add(debugButton);
 
         return panel;
     }
@@ -179,6 +181,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
     private JPanel createSyntaxTextAreaPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
+        // Try to implement lineWrap for jsonSyntaxTextArea (that does not make the program work slow)
         jsonSyntaxTextArea = new TextEditorPane();
         jsonSyntaxTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
         jsonSyntaxTextArea.setCodeFoldingEnabled(true);
