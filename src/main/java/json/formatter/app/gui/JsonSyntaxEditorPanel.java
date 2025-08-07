@@ -200,6 +200,27 @@ public class JsonSyntaxEditorPanel extends JPanel {
         return panel;
     }
 
+    private void createAndShowErrorDialog(Exception exception) {
+        String errorMessage;
+        int newlineIndex = exception.getMessage().indexOf('\n');
+        if (newlineIndex > -1) {
+            errorMessage = exception.getMessage().substring(0, newlineIndex);
+        } else {
+            errorMessage = exception.getMessage();
+        }
+
+        if (errorMessage.contains("malformed JSON")) {
+            int firstIndex = errorMessage.indexOf("at");
+            errorMessage = "Malformed JSON " + errorMessage.substring(firstIndex, newlineIndex);
+        } else if (errorMessage.contains("Unterminated string")) {
+            int firstIndex = errorMessage.indexOf("Unterminated");
+            errorMessage = errorMessage.substring(firstIndex, newlineIndex);
+        }
+
+        JOptionPane.showMessageDialog(null, errorMessage,
+            "JSON Editor Error", JOptionPane.ERROR_MESSAGE);
+    }
+
     private void updateCaretLabel() {
         int dotPosition = caret.getDot();
         int markPosition = caret.getMark();
@@ -260,11 +281,14 @@ public class JsonSyntaxEditorPanel extends JPanel {
         JFileChooser fileSave = new JFileChooser(this.lastSaveDirectoryPath);
         fileSave.setFileFilter(filter);
         String fileName = fileNameField.getText();
-        if (!fileName.equals("")) {
-            fileName = fileName.concat(".json");
-            File saveFile = new File(fileName);
-            fileSave.setSelectedFile(saveFile);
+        if (fileName.isEmpty() || fileName.isBlank()) {
+            fileName = fileName.concat("Untitled.json");
+        } else {
+            fileName = fileName.trim().concat(".json");
         }
+
+        File saveFile = new File(fileName);
+        fileSave.setSelectedFile(saveFile);
         
         int returnValue = fileSave.showSaveDialog(this);
         if (returnValue == JFileChooser.APPROVE_OPTION) {
@@ -382,15 +406,17 @@ public class JsonSyntaxEditorPanel extends JPanel {
 
                     jsonSyntaxTextArea.setText(formattedJsonString);
                 } catch (IOException ioe) {
-                    System.err.println(ioe.getMessage());
-                    JOptionPane.showMessageDialog(null, ioe.getMessage(),
-                        "JSON Error Message", JOptionPane.ERROR_MESSAGE);
+                    // System.err.println(ioe.getMessage());
+                    createAndShowErrorDialog(ioe);
+                } catch (JsonParseException jsonParseException) {
+                    // System.err.println(jsonParseException.getMessage());
+                    createAndShowErrorDialog(jsonParseException);
                 }
             }
         }
     }
 
-    // Custom event listener classes
+    // Custom event listeners and classes
     class PanelEventListener extends ComponentAdapter {
         @Override
         public void componentResized(ComponentEvent e) {
