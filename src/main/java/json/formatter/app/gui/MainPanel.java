@@ -43,12 +43,10 @@ public class MainPanel extends JPanel {
         JPanel centralPanel = new JPanel();
         centralPanel.setMaximumSize(centralPanelMaximumSize);
         centralPanel.add(controlsPanel);
-        // centralPanel.setBackground(Color.MAGENTA);
 
         this.add(leftJsonEditorPanel);
         this.add(centralPanel);
         this.add(rightJsonEditorPanel);
-        // this.setBackground(Color.CYAN);
     }
 
     /**

@@ -11,7 +11,6 @@ import javax.swing.*;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
 
 import com.google.gson.*;
@@ -218,15 +217,8 @@ public class JsonSyntaxEditorPanel extends JPanel {
     private void updateCaretLabel() {
         int dotPosition = caret.getDot();
         int markPosition = caret.getMark();
-        
-        int currentLine = 0;
-        int currentColumn = 0;
-        try {
-            currentLine = jsonSyntaxTextArea.getLineOfOffset(dotPosition);
-            currentColumn = dotPosition - jsonSyntaxTextArea.getLineStartOffset(currentLine);
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
+        int currentLine = jsonSyntaxTextArea.getCaretLineNumber() + 1;
+        int currentColumn = jsonSyntaxTextArea.getCaretOffsetFromLineStart() + 1;
 
         int selectedChars = 0;
         if (dotPosition > markPosition) {
@@ -236,7 +228,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
         }
         String selectedCharsString = (selectedChars > 0) ? String.format(" (%1$d selected)", selectedChars) : "";
 
-        String labelText = String.format("Line: %1$d Column: %2$d%3$s", currentLine + 1, currentColumn + 1, selectedCharsString);
+        String labelText = String.format("Line: %1$d Column: %2$d%3$s", currentLine, currentColumn, selectedCharsString);
         caretLabel.setText(labelText);
     }
 

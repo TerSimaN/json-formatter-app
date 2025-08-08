@@ -14,7 +14,5 @@ public class App {
                 mainWindowFrame.createAndShowGUI();
             }
         });
-
-        // System.out.println("isEventDispatchThread: " + SwingUtilities.isEventDispatchThread());
     }
 }
