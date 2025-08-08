@@ -25,7 +25,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
     private Gson prettyPrintSerializeNullsGsonBuilder = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
     private JsonStringParser jsonStringParser = new JsonStringParser();
 
-    private FileNameExtensionFilter filter;
+    private FileNameExtensionFilter fileFilter;
     private FlowLayout leadingFlowLayout;
     private Dimension iconBtnPreferredSize = new Dimension(30, 30);
 
@@ -52,11 +52,11 @@ public class JsonSyntaxEditorPanel extends JPanel {
         this.setName("JsonEditorPanel");
         this.addComponentListener(new PanelEventListener());
 
-        filter = new FileNameExtensionFilter("JSON files (*.json)", "json");
+        fileFilter = new FileNameExtensionFilter("JSON files (*.json)", "json");
         leadingFlowLayout = new FlowLayout(FlowLayout.LEADING, 5, 0);
 
-        JPanel fileControlsPanel = createFileControlsPanel(leadingFlowLayout);
-        JPanel controlOptionsPanel = createControlOptionsPanel(leadingFlowLayout);
+        JPanel fileControlsPanel = createFileControlsPanel();
+        JPanel controlOptionsPanel = createControlOptionsPanel();
         JPanel editorTextAreaPanel = createSyntaxTextAreaPanel();
         updateCaretLabel();
 
@@ -88,12 +88,11 @@ public class JsonSyntaxEditorPanel extends JPanel {
     }
 
     /**
-     * Create a file controls JPanel with the specified layout manager
-     * @param flowLayout the FlowLayout to use
+     * Creates a file controls JPanel
      * @return the panel
      */
-    private JPanel createFileControlsPanel(LayoutManager flowLayout) {
-        JPanel panel = new JPanel(flowLayout);
+    private JPanel createFileControlsPanel() {
+        JPanel panel = new JPanel(leadingFlowLayout);
 
         fileNameField = new JTextField(20);
         panel.add(fileNameField);
@@ -127,12 +126,11 @@ public class JsonSyntaxEditorPanel extends JPanel {
     }
 
     /**
-     * Create a control options JPanel with the specified layout manager
-     * @param flowLayout the FlowLayout to use
+     * Creates a control options JPanel
      * @return the panel
      */
-    private JPanel createControlOptionsPanel(LayoutManager flowLayout) {
-        JPanel panel = new JPanel(flowLayout);
+    private JPanel createControlOptionsPanel() {
+        JPanel panel = new JPanel(leadingFlowLayout);
 
         JButton formatJsonButton = new JButton(ImageIconConstants.formatJsonIcon);
         formatJsonButton.setPreferredSize(iconBtnPreferredSize);
@@ -166,7 +164,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
     }
 
     /**
-     * Create a RSyntax text area editor JPanel
+     * Creates a RSyntax text area editor JPanel
      * @return the panel
      */
     private JPanel createSyntaxTextAreaPanel() {
@@ -234,7 +232,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
 
     private void open() {
         JFileChooser fileOpen = new JFileChooser(this.lastOpenDirectoryPath);
-        fileOpen.setFileFilter(filter);
+        fileOpen.setFileFilter(fileFilter);
         int returnValue = fileOpen.showOpenDialog(this);
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             this.lastOpenDirectoryPath = fileOpen.getCurrentDirectory().getPath();
@@ -246,7 +244,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
 
     private void save() {
         JFileChooser fileSave = new JFileChooser(this.lastSaveDirectoryPath);
-        fileSave.setFileFilter(filter);
+        fileSave.setFileFilter(fileFilter);
         String fileName = fileNameField.getText();
         if (fileName.isEmpty() || fileName.isBlank()) {
             fileName = fileName.concat("Untitled.json");

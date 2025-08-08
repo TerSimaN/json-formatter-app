@@ -10,7 +10,7 @@ import json.formatter.app.constants.ImageIconConstants;
 
 public class MainPanel extends JPanel {
     private GridLayout gridLayout;
-    private FlowLayout customFlowLayout;
+    private FlowLayout centerFlowLayout;
     private JsonSyntaxEditorPanel leftJsonEditorPanel;
     private JsonSyntaxEditorPanel rightJsonEditorPanel;
 
@@ -21,13 +21,13 @@ public class MainPanel extends JPanel {
         this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         gridLayout = new GridLayout(2, 1);
-        customFlowLayout = new FlowLayout(FlowLayout.CENTER, 10, 0);
+        centerFlowLayout = new FlowLayout(FlowLayout.CENTER, 10, 0);
         leftJsonEditorPanel = new JsonSyntaxEditorPanel();
         rightJsonEditorPanel = new JsonSyntaxEditorPanel();
 
-        JPanel jsonCopyPanel = createCopyPanel(gridLayout, customFlowLayout);
-        JPanel jsonTransformPanel = createTransformPanel(gridLayout, customFlowLayout);
-        JPanel jsonDifferencesPanel = createDifferencesPanel(gridLayout, customFlowLayout);
+        JPanel jsonCopyPanel = createCopyPanel();
+        JPanel jsonTransformPanel = createTransformPanel();
+        JPanel jsonDifferencesPanel = createDifferencesPanel();
 
         // JSON controls panel
         JPanel controlsPanel = new JPanel();
@@ -50,19 +50,17 @@ public class MainPanel extends JPanel {
     }
 
     /**
-     * Create a copy controls JPanel with the specified layout managers
-     * @param gridLayout the GridLayout to use for the panel
-     * @param flowLayout the FlowLayout to use for the button panel
+     * Creates a copy controls JPanel
      * @return the panel
      */
-    private JPanel createCopyPanel(LayoutManager gridLayout, LayoutManager flowLayout) {
+    private JPanel createCopyPanel() {
         JPanel copyPanel = new JPanel(gridLayout);
         
         JLabel copyLabel = new JLabel("Copy");
         copyLabel.setHorizontalAlignment(SwingConstants.CENTER);
         copyPanel.add(copyLabel);
 
-        JPanel btnCopyPanel = new JPanel(flowLayout);
+        JPanel btnCopyPanel = new JPanel(centerFlowLayout);
         JButton copyRightToLeftBtn = new JButton(ImageIconConstants.arrowLeftBoldIcon);
         copyRightToLeftBtn.setToolTipText("Copy the contents of the right panel to the left panel");
         copyRightToLeftBtn.setActionCommand("copyRightToLeft");
@@ -81,19 +79,17 @@ public class MainPanel extends JPanel {
     }
 
     /**
-     * Create a transform controls JPanel with the specified layout managers
-     * @param gridLayout the GridLayout to use for the panel
-     * @param flowLayout the FlowLayout to use for the button panel
+     * Creates a transform controls JPanel
      * @return the panel
      */
-    private JPanel createTransformPanel(LayoutManager gridLayout, LayoutManager flowLayout) {
+    private JPanel createTransformPanel() {
         JPanel transformPanel = new JPanel(gridLayout);
         
         JLabel transformLabel = new JLabel("Transform");
         transformLabel.setHorizontalAlignment(SwingConstants.CENTER);
         transformPanel.add(transformLabel);
 
-        JPanel btnTransformPanel = new JPanel(flowLayout);
+        JPanel btnTransformPanel = new JPanel(centerFlowLayout);
         JButton transformRightToLeftBtn = new JButton(ImageIconConstants.arrowLeftBoldIcon);
         transformRightToLeftBtn.setToolTipText("Transform the contents of the right panel into the left panel");
         transformRightToLeftBtn.setActionCommand("transformRightToLeft");
@@ -114,19 +110,17 @@ public class MainPanel extends JPanel {
     }
 
     /**
-     * Create a differences controls JPanel with the specified layout managers
-     * @param gridLayout the GridLayout to use for the panel
-     * @param flowLayout the FlowLayout to use for the button panel
+     * Creates a differences controls JPanel
      * @return the panel
      */
-    private JPanel createDifferencesPanel(LayoutManager gridLayout, LayoutManager flowLayout) {
+    private JPanel createDifferencesPanel() {
         JPanel differencesPanel = new JPanel(gridLayout);
         
         JLabel differencesLabel = new JLabel("Differences");
         differencesLabel.setHorizontalAlignment(SwingConstants.CENTER);
         differencesPanel.add(differencesLabel);
 
-        JPanel btnDifferencesPanel = new JPanel(flowLayout);
+        JPanel btnDifferencesPanel = new JPanel(centerFlowLayout);
         JButton compareDifferencesBtn = new JButton("Compare");
         compareDifferencesBtn.setToolTipText("Highlight the differences between left and right panel contents (currently disabled)");
         compareDifferencesBtn.addActionListener(e -> compareJsonContent());
