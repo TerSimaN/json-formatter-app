@@ -29,7 +29,6 @@ public class JsonSyntaxEditorPanel extends JPanel {
     private FileNameExtensionFilter filter;
     private FlowLayout leadingFlowLayout;
     private Dimension iconBtnPreferredSize = new Dimension(30, 30);
-    private boolean isComponentUsed = false;
 
     // File controls panel
     private JTextField fileNameField;
@@ -51,7 +50,6 @@ public class JsonSyntaxEditorPanel extends JPanel {
     
     JsonSyntaxEditorPanel() {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        // this.setBackground(Color.PINK);
         this.setName("JsonEditorPanel");
         this.addComponentListener(new PanelEventListener());
 
@@ -123,7 +121,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
         copyButton = new JButton("Copy", ImageIconConstants.copyFileIcon);
         copyButton.setToolTipText("Copy");
         copyButton.addActionListener(e -> System.err.println("Unimplemented method 'copy'"));
-        copyButton.setEnabled(isComponentUsed);
+        copyButton.setEnabled(false);
         panel.add(copyButton);
 
         return panel;
@@ -165,12 +163,6 @@ public class JsonSyntaxEditorPanel extends JPanel {
         redoButton.addActionListener(redoListener);
         panel.add(redoButton);
 
-        // Button for showing debug/sysout/syserr info
-        JButton debugButton = new JButton();
-        debugButton.setPreferredSize(iconBtnPreferredSize);
-        debugButton.addActionListener(e -> printDebugInfo());
-        // panel.add(debugButton);
-
         return panel;
     }
 
@@ -181,7 +173,6 @@ public class JsonSyntaxEditorPanel extends JPanel {
     private JPanel createSyntaxTextAreaPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
-        // Try to implement lineWrap for jsonSyntaxTextArea (that does not make the program work slow)
         jsonSyntaxTextArea = new TextEditorPane();
         jsonSyntaxTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
         jsonSyntaxTextArea.setCodeFoldingEnabled(true);
@@ -249,25 +240,6 @@ public class JsonSyntaxEditorPanel extends JPanel {
         caretLabel.setText(labelText);
     }
 
-    private void printDebugInfo() {
-        // System.out.printf("JButton Size: [Minimum=%1$d, Preferred=%2$d, Maximum=%3$d]\n",
-        //     copyButton.getMinimumSize(), copyButton.getPreferredSize(), copyButton.getMaximumSize());
-        
-        Graphics graphics = jsonSyntaxTextArea.getGraphics();
-        Font font = graphics.getFont();
-        FontMetrics fontMetrics = graphics.getFontMetrics(font);
-        System.out.printf("Font: [Name=%1$s, FontName=%2$s, Family=%3$s, Style=%4$d, Size=%5$d];\n",
-            font.getName(), font.getFontName(), font.getFamily(), font.getStyle(), font.getSize());
-        System.out.printf("FontMetrics: [Ascent=%1$d, Descent=%2$d, Leading=%3$d, Height=%4$d];\n",
-            fontMetrics.getAscent(), fontMetrics.getDescent(), fontMetrics.getLeading(), fontMetrics.getHeight());
-        
-        // GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        // System.out.println("AvailableFontFamilyNames:");
-        // for (String fontFamilyName : graphicsEnvironment.getAvailableFontFamilyNames()) {
-        //     System.out.println(fontFamilyName + ";");
-        // }
-    }
-
     private void open() {
         JFileChooser fileOpen = new JFileChooser(this.lastOpenDirectoryPath);
         fileOpen.setFileFilter(filter);
@@ -276,7 +248,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
             this.lastOpenDirectoryPath = fileOpen.getCurrentDirectory().getPath();
             loadFile(fileOpen.getSelectedFile());
         } else {
-            System.out.println("Open command canceled by user.");
+            System.err.println("Open command canceled by user.");
         }
     }
 
@@ -298,7 +270,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
             this.lastSaveDirectoryPath = fileSave.getCurrentDirectory().getPath();
             saveFile(fileSave.getSelectedFile());
         } else {
-            System.out.println("Save command canceled by user.");
+            System.err.println("Save command canceled by user.");
         }
     }
 
@@ -310,7 +282,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
             FileLocation selectedFileLocation = FileLocation.create(file);
             jsonSyntaxTextArea.load(selectedFileLocation);
         } catch (IOException e) {
-            System.out.println("Couldn't read file: " + e.getMessage());
+            System.err.println("Couldn't read file: " + e.getMessage());
         }
     }
 
@@ -319,7 +291,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
             FileLocation selectedFileLocation = FileLocation.create(file);
             jsonSyntaxTextArea.saveAs(selectedFileLocation);
         } catch (IOException e) {
-            System.out.println("Couldn't write to file: " + e.getMessage());
+            System.err.println("Couldn't write to file: " + e.getMessage());
         }
     }
 
@@ -402,17 +374,14 @@ public class JsonSyntaxEditorPanel extends JPanel {
                     if (command.equals("prettyJson")) {
                         formattedJsonString = prettyPrintSerializeNullsGsonBuilder.toJson(parsedJsonElement);
                     }
-                    
                     if (command.equals("compactJson")) {
                         formattedJsonString = serializeNullsGsonBuilder.toJson(parsedJsonElement);
                     }
 
                     jsonSyntaxTextArea.setText(formattedJsonString);
                 } catch (IOException ioe) {
-                    // System.err.println(ioe.getMessage());
                     createAndShowErrorDialog(ioe);
                 } catch (JsonParseException jsonParseException) {
-                    // System.err.println(jsonParseException.getMessage());
                     createAndShowErrorDialog(jsonParseException);
                 }
             }
@@ -424,8 +393,6 @@ public class JsonSyntaxEditorPanel extends JPanel {
         @Override
         public void componentResized(ComponentEvent e) {
             Dimension componentDimension = e.getComponent().getSize();
-            // String componentName = e.getComponent().getName();
-            // System.out.println(componentName +  " size: " + componentDimension);
             int componentWidth = componentDimension.width;
             
             if (componentWidth < 580) {
