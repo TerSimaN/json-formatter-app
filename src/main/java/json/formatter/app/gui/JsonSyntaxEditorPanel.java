@@ -37,6 +37,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
     private JButton copyButton;
     private String lastOpenDirectoryPath = null;
     private String lastSaveDirectoryPath = null;
+    private boolean hasFileNameChanged = false;
     
     // Json RSyntax text area
     private TextEditorPane jsonSyntaxTextArea;
@@ -103,6 +104,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
             fileNameField.setText("New document");
             jsonSyntaxTextArea.setText(null);
             updateUndoRedoState();
+            updateWindowTitle();
         });
         panel.add(newButton);
 
@@ -268,6 +270,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
         try {
             String fileName = file.getName().replaceFirst(".json", "");
             fileNameField.setText(fileName);
+            updateWindowTitle();
 
             FileLocation selectedFileLocation = FileLocation.create(file);
             jsonSyntaxTextArea.load(selectedFileLocation);
@@ -278,11 +281,17 @@ public class JsonSyntaxEditorPanel extends JPanel {
 
     private void saveFile(File file) {
         try {
+            updateWindowTitle();
             FileLocation selectedFileLocation = FileLocation.create(file);
             jsonSyntaxTextArea.saveAs(selectedFileLocation);
         } catch (IOException e) {
             System.err.println("Couldn't write to file: " + e.getMessage());
         }
+    }
+
+    private void updateWindowTitle() {
+        this.firePropertyChange("fileNameChange", hasFileNameChanged, !hasFileNameChanged);
+        hasFileNameChanged = !hasFileNameChanged;
     }
 
     private void updateUndoRedoState() {
