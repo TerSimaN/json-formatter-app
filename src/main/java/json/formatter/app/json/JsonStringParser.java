@@ -19,10 +19,15 @@ public class JsonStringParser {
 
         try {
             JsonToken token = reader.peek();
-            if (token.equals(JsonToken.BEGIN_OBJECT)) {
-                jsonElement = parseReaderToObject(reader);
-            } else if (token.equals(JsonToken.BEGIN_ARRAY)) {
-                jsonElement = parseReaderToArray(reader);
+            switch (token) {
+                case JsonToken.BEGIN_OBJECT:
+                    jsonElement = parseReaderToObject(reader);
+                    break;
+                case JsonToken.BEGIN_ARRAY:
+                    jsonElement = parseReaderToArray(reader);
+                    break;
+                default:
+                    break;
             }
         } finally {
             reader.close();
@@ -39,26 +44,35 @@ public class JsonStringParser {
         reader.beginObject();
         while (reader.hasNext()) {
             JsonToken token = reader.peek();
-            if (token.equals(JsonToken.NAME)) {
-                nameKey = reader.nextName();
-            } else if (token.equals(JsonToken.STRING)) {
-                jsonElement = JsonParser.parseReader(reader);
-                jsonObject.add(nameKey, jsonElement);
-            } else if (token.equals(JsonToken.NUMBER)) {
-                jsonElement = JsonParser.parseReader(reader);
-                jsonObject.add(nameKey, jsonElement);
-            } else if (token.equals(JsonToken.BEGIN_OBJECT)) {
-                jsonObject.add(nameKey, parseReaderToObject(reader));
-            } else if (token.equals(JsonToken.BEGIN_ARRAY)) {
-                jsonObject.add(nameKey, parseReaderToArray(reader));
-            } else if (token.equals(JsonToken.BOOLEAN)) {
-                jsonElement = JsonParser.parseReader(reader);
-                jsonObject.add(nameKey, jsonElement);
-            } else if (token.equals(JsonToken.NULL)) {
-                jsonElement = JsonParser.parseReader(reader);
-                jsonObject.add(nameKey, jsonElement);
-            } else {
-                reader.skipValue();
+            switch (token) {
+                case JsonToken.NAME:
+                    nameKey = reader.nextName();
+                    break;
+                case JsonToken.STRING:
+                    jsonElement = JsonParser.parseReader(reader);
+                    jsonObject.add(nameKey, jsonElement);
+                    break;
+                case JsonToken.NUMBER:
+                    jsonElement = JsonParser.parseReader(reader);
+                    jsonObject.add(nameKey, jsonElement);
+                    break;
+                case JsonToken.BEGIN_OBJECT:
+                    jsonObject.add(nameKey, parseReaderToObject(reader));
+                    break;
+                case JsonToken.BEGIN_ARRAY:
+                    jsonObject.add(nameKey, parseReaderToArray(reader));
+                    break;
+                case JsonToken.BOOLEAN:
+                    jsonElement = JsonParser.parseReader(reader);
+                    jsonObject.add(nameKey, jsonElement);
+                    break;
+                case JsonToken.NULL:
+                    jsonElement = JsonParser.parseReader(reader);
+                    jsonObject.add(nameKey, jsonElement);
+                    break;
+                default:
+                    reader.skipValue();
+                    break;
             }
         }
         reader.endObject();
@@ -67,34 +81,42 @@ public class JsonStringParser {
     }
 
     private JsonArray parseReaderToArray(JsonReader reader) throws IOException {
-        JsonArray elementsArray = new JsonArray();
+        JsonArray jsonArray = new JsonArray();
         JsonElement jsonElement = null;
 
         reader.beginArray();
         while (reader.hasNext()) {
             JsonToken token = reader.peek();
-            if (token.equals(JsonToken.STRING)) {
-                jsonElement = JsonParser.parseReader(reader);
-                elementsArray.add(jsonElement);
-            } else if (token.equals(JsonToken.NUMBER)) {
-                jsonElement = JsonParser.parseReader(reader);
-                elementsArray.add(jsonElement);
-            } else if (token.equals(JsonToken.BEGIN_OBJECT)) {
-                elementsArray.add(parseReaderToObject(reader));
-            } else if (token.equals(JsonToken.BEGIN_ARRAY)) {
-                elementsArray.add(parseReaderToArray(reader));
-            } else if (token.equals(JsonToken.BOOLEAN)) {
-                jsonElement = JsonParser.parseReader(reader);
-                elementsArray.add(jsonElement);
-            } else if (token.equals(JsonToken.NULL)) {
-                jsonElement = JsonParser.parseReader(reader);
-                elementsArray.add(jsonElement.getAsJsonNull());
-            } else {
-                reader.skipValue();
+            switch (token) {
+                case JsonToken.STRING:
+                    jsonElement = JsonParser.parseReader(reader);
+                    jsonArray.add(jsonElement);
+                    break;
+                case JsonToken.NUMBER:
+                    jsonElement = JsonParser.parseReader(reader);
+                    jsonArray.add(jsonElement);
+                    break;
+                case JsonToken.BEGIN_OBJECT:
+                    jsonArray.add(parseReaderToObject(reader));
+                    break;
+                case JsonToken.BEGIN_ARRAY:
+                    jsonArray.add(parseReaderToArray(reader));
+                    break;
+                case JsonToken.BOOLEAN:
+                    jsonElement = JsonParser.parseReader(reader);
+                    jsonArray.add(jsonElement);
+                    break;
+                case JsonToken.NULL:
+                    jsonElement = JsonParser.parseReader(reader);
+                    jsonArray.add(jsonElement.getAsJsonNull());
+                    break;
+                default:
+                    reader.skipValue();
+                    break;
             }
         }
         reader.endArray();
 
-        return elementsArray;
+        return jsonArray;
     }
 }
