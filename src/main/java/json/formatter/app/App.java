@@ -7,11 +7,11 @@ import json.formatter.app.gui.MainWindowFrame;
 public class App {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
-            MainWindowFrame mainWindowFrame = new MainWindowFrame();
+            MainWindowFrame mainWindowFrame;
             
             @Override
             public void run() {
-                mainWindowFrame.createAndShowGUI();
+                mainWindowFrame = new MainWindowFrame();
             }
         });
     }
