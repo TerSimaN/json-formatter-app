@@ -18,31 +18,33 @@ import org.fife.ui.rsyntaxtextarea.*;
 import org.fife.ui.rtextarea.*;
 
 import json.formatter.app.constants.ImageIconConstants;
-import json.formatter.app.json.JsonStringParser;
 
 public class JsonSyntaxEditorPanel extends JPanel {
     private Gson serializeNullsGsonBuilder = new GsonBuilder().serializeNulls().create();
     private Gson prettyPrintSerializeNullsGsonBuilder = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
-    private JsonStringParser jsonStringParser = new JsonStringParser();
 
     private FileNameExtensionFilter fileFilter;
     private FlowLayout leadingFlowLayout;
     private Dimension iconBtnPreferredSize = new Dimension(30, 30);
 
     // File controls panel
-    private JTextField fileNameField;
     private JButton newButton;
     private JButton openButton;
     private JButton saveButton;
     private JButton copyButton;
     private String lastOpenDirectoryPath = null;
     private String lastSaveDirectoryPath = null;
-    private boolean hasFileNameChanged = false;
+    private String fullFilePath = null;
+    private boolean hasFullFilePathChanged = false;
+
+    // Control options panel
+    private JButton lineWrapButton;
     
     // Json RSyntax text area
     private TextEditorPane jsonSyntaxTextArea;
     private Caret caret;
     private JLabel caretLabel;
+    private boolean hasLineWrap = true;
 
     // Undo and redo helpers
     protected UndoListener undoListener;
@@ -61,6 +63,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
         JPanel editorTextAreaPanel = createSyntaxTextAreaPanel();
         updateCaretLabel();
 
+        this.add(Box.createVerticalStrut(5));
         this.add(fileControlsPanel);
         this.add(Box.createVerticalStrut(5));
         this.add(controlOptionsPanel);
@@ -68,13 +71,13 @@ public class JsonSyntaxEditorPanel extends JPanel {
         this.add(editorTextAreaPanel);
     }
 
-    public String getFileName() {
-        return fileNameField.getText();
+    public String getFullFilePath() {
+        return fullFilePath;
     }
 
-    public void setFileName(String fileName) {
-        if (!fileName.isEmpty()) {
-            fileNameField.setText(fileName);
+    public void setFullFilePath(String filePath) {
+        if (!filePath.isEmpty()) {
+            fullFilePath = filePath;
         }
     }
     
@@ -94,18 +97,10 @@ public class JsonSyntaxEditorPanel extends JPanel {
      */
     private JPanel createFileControlsPanel() {
         JPanel panel = new JPanel(leadingFlowLayout);
-
-        fileNameField = new JTextField(20);
-        panel.add(fileNameField);
         
         newButton = new JButton("New", ImageIconConstants.newFileIcon);
-        newButton.setToolTipText("New empty document");
-        newButton.addActionListener(e -> {
-            fileNameField.setText("New document");
-            jsonSyntaxTextArea.setText(null);
-            updateUndoRedoState();
-            updateWindowTitle();
-        });
+        newButton.setToolTipText("New document");
+        newButton.addActionListener(e -> createAndShowNewWindowDialog());
         panel.add(newButton);
 
         openButton = new JButton("Open", ImageIconConstants.openFileIcon);
@@ -162,6 +157,12 @@ public class JsonSyntaxEditorPanel extends JPanel {
         redoButton.addActionListener(redoListener);
         panel.add(redoButton);
 
+        lineWrapButton = new JButton(ImageIconConstants.wrapEnableIcon);
+        lineWrapButton.setPreferredSize(iconBtnPreferredSize);
+        lineWrapButton.setToolTipText("Line wraping disabled");
+        lineWrapButton.addActionListener(e -> updateLineWrapState());
+        panel.add(lineWrapButton);
+
         return panel;
     }
 
@@ -173,6 +174,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
         JPanel panel = new JPanel(new BorderLayout());
 
         jsonSyntaxTextArea = new TextEditorPane();
+        jsonSyntaxTextArea.setWrapStyleWord(true);
         jsonSyntaxTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
         jsonSyntaxTextArea.setCodeFoldingEnabled(true);
         jsonSyntaxTextArea.getDocument().addUndoableEditListener(new JsonUndoableEditListener());
@@ -191,6 +193,10 @@ public class JsonSyntaxEditorPanel extends JPanel {
         panel.add(caretPanel, BorderLayout.SOUTH);
 
         return panel;
+    }
+
+    private void createAndShowNewWindowDialog() {
+        
     }
 
     private void createAndShowErrorDialog(Exception exception) {
@@ -232,6 +238,15 @@ public class JsonSyntaxEditorPanel extends JPanel {
         caretLabel.setText(labelText);
     }
 
+    private void updateLineWrapState() {
+        jsonSyntaxTextArea.setLineWrap(hasLineWrap);
+        hasLineWrap = !hasLineWrap;
+        Icon lineWrapIcon = hasLineWrap ? ImageIconConstants.wrapEnableIcon : ImageIconConstants.wrapDisableIcon;
+        lineWrapButton.setIcon(lineWrapIcon);
+        String toolTipText = hasLineWrap ? "Line wraping disabled" : "Line wraping enabled";
+        lineWrapButton.setToolTipText(toolTipText);
+    }
+
     private void open() {
         JFileChooser fileOpen = new JFileChooser(this.lastOpenDirectoryPath);
         fileOpen.setFileFilter(fileFilter);
@@ -247,14 +262,8 @@ public class JsonSyntaxEditorPanel extends JPanel {
     private void save() {
         JFileChooser fileSave = new JFileChooser(this.lastSaveDirectoryPath);
         fileSave.setFileFilter(fileFilter);
-        String fileName = fileNameField.getText();
-        if (fileName.isEmpty() || fileName.isBlank()) {
-            fileName = fileName.concat("Untitled.json");
-        } else {
-            fileName = fileName.trim().concat(".json");
-        }
 
-        File saveFile = new File(fileName);
+        File saveFile = new File(fullFilePath);
         fileSave.setSelectedFile(saveFile);
         
         int returnValue = fileSave.showSaveDialog(this);
@@ -268,8 +277,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
 
     private void loadFile(File file) {
         try {
-            String fileName = file.getName().replaceFirst(".json", "");
-            fileNameField.setText(fileName);
+            fullFilePath = file.getAbsolutePath();
             updateWindowTitle();
 
             FileLocation selectedFileLocation = FileLocation.create(file);
@@ -290,8 +298,8 @@ public class JsonSyntaxEditorPanel extends JPanel {
     }
 
     private void updateWindowTitle() {
-        this.firePropertyChange("fileNameChange", hasFileNameChanged, !hasFileNameChanged);
-        hasFileNameChanged = !hasFileNameChanged;
+        this.firePropertyChange("fullFilePath", hasFullFilePathChanged, !hasFullFilePathChanged);
+        hasFullFilePathChanged = !hasFullFilePathChanged;
     }
 
     private void updateUndoRedoState() {
@@ -367,7 +375,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
             
             if (!jsonString.isEmpty()) {
                 try {
-                    JsonElement parsedJsonElement = jsonStringParser.parseJsonString(jsonString);
+                    JsonElement parsedJsonElement = JsonParser.parseString(jsonString);
                     String formattedJsonString = null;
 
                     if (command.equals("prettyJson")) {
@@ -379,8 +387,6 @@ public class JsonSyntaxEditorPanel extends JPanel {
 
                     jsonSyntaxTextArea.setText(formattedJsonString);
                     jsonSyntaxTextArea.setCaretPosition(0);
-                } catch (IOException ioe) {
-                    createAndShowErrorDialog(ioe);
                 } catch (JsonParseException jsonParseException) {
                     createAndShowErrorDialog(jsonParseException);
                 }
