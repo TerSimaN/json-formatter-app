@@ -14,13 +14,13 @@ public class MainWindowFrame extends JFrame implements PropertyChangeListener {
     public MainWindowFrame() {
         this.setName("MainFrame");
         this.setTitle(defaultTitle);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         
         editorPanel = new JsonSyntaxEditorPanel(this);
         editorPanel.addPropertyChangeListener("fullFilePath", this);
         this.getContentPane().add(BorderLayout.CENTER, editorPanel);
         
-        this.setMinimumSize(new Dimension(1120, 720));
+        this.setMinimumSize(new Dimension(820, 720));
         this.pack();
         this.setLocationRelativeTo(null);
         this.setVisible(true);
