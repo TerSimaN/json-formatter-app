@@ -11,4 +11,6 @@ public abstract class ImageIconConstants {
     public static ImageIcon copyFileIcon = new ImageIcon("src/main/resources/icons/copy-file.png");
     public static ImageIcon formatJsonIcon = new ImageIcon("src/main/resources/icons/format-json.png");
     public static ImageIcon compactJsonIcon = new ImageIcon("src/main/resources/icons/compact-json.png");
+    public static ImageIcon wrapEnableIcon = new ImageIcon("src/main/resources/icons/wrap-enabled.png");
+    public static ImageIcon wrapDisableIcon = new ImageIcon("src/main/resources/icons/wrap-disabled.png");
 }
