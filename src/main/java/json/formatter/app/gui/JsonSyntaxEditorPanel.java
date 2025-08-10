@@ -26,6 +26,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
     private FileNameExtensionFilter fileFilter;
     private FlowLayout leadingFlowLayout;
     private Dimension iconBtnPreferredSize = new Dimension(30, 30);
+    private Frame parentFrame;
 
     // File controls panel
     private JButton newButton;
@@ -50,7 +51,8 @@ public class JsonSyntaxEditorPanel extends JPanel {
     protected UndoListener undoListener;
     protected RedoListener redoListener;
     
-    JsonSyntaxEditorPanel() {
+    JsonSyntaxEditorPanel(Frame parent) {
+        this.parentFrame = parent;
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.setName("JsonEditorPanel");
         this.addComponentListener(new PanelEventListener());
@@ -80,16 +82,6 @@ public class JsonSyntaxEditorPanel extends JPanel {
             fullFilePath = filePath;
         }
     }
-    
-    public String getJsonText() {
-        return jsonSyntaxTextArea.getText();
-    }
-
-    public void setJsonText(String jsonText) {
-        if (!jsonText.isEmpty()) {
-            jsonSyntaxTextArea.setText(jsonText);
-        }
-    }
 
     /**
      * Creates a file controls JPanel
@@ -100,7 +92,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
         
         newButton = new JButton("New", ImageIconConstants.newFileIcon);
         newButton.setToolTipText("New document");
-        newButton.addActionListener(e -> createAndShowNewWindowDialog());
+        newButton.addActionListener(e -> createAndShowNewWindowFrame());
         panel.add(newButton);
 
         openButton = new JButton("Open", ImageIconConstants.openFileIcon);
@@ -195,8 +187,10 @@ public class JsonSyntaxEditorPanel extends JPanel {
         return panel;
     }
 
-    private void createAndShowNewWindowDialog() {
-        
+    private void createAndShowNewWindowFrame() {
+        NewWindowFrame newWindowFrame = new NewWindowFrame(parentFrame);
+        newWindowFrame.pack();
+        newWindowFrame.setVisible(true);
     }
 
     private void createAndShowErrorDialog(Exception exception) {
@@ -300,12 +294,6 @@ public class JsonSyntaxEditorPanel extends JPanel {
     private void updateWindowTitle() {
         this.firePropertyChange("fullFilePath", hasFullFilePathChanged, !hasFullFilePathChanged);
         hasFullFilePathChanged = !hasFullFilePathChanged;
-    }
-
-    private void updateUndoRedoState() {
-        jsonSyntaxTextArea.discardAllEdits();
-        undoListener.updateUndoState();
-        redoListener.updateRedoState();
     }
 
     // Class listening for edits that can be undone
