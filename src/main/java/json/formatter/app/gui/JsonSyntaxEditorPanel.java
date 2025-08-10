@@ -378,6 +378,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
                     }
 
                     jsonSyntaxTextArea.setText(formattedJsonString);
+                    jsonSyntaxTextArea.setCaretPosition(0);
                 } catch (IOException ioe) {
                     createAndShowErrorDialog(ioe);
                 } catch (JsonParseException jsonParseException) {
