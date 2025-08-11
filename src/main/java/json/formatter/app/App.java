@@ -11,7 +11,9 @@ public class App {
             
             @Override
             public void run() {
-                mainWindowFrame = new MainWindowFrame();
+                mainWindowFrame = new MainWindowFrame(null);
+                mainWindowFrame.pack();
+                mainWindowFrame.setVisible(true);
             }
         });
     }

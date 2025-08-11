@@ -188,7 +188,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
     }
 
     private void createAndShowNewWindowFrame() {
-        NewWindowFrame newWindowFrame = new NewWindowFrame(parentFrame);
+        MainWindowFrame newWindowFrame = new MainWindowFrame(parentFrame);
         newWindowFrame.pack();
         newWindowFrame.setVisible(true);
     }

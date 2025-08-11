@@ -11,7 +11,7 @@ public class MainWindowFrame extends JFrame implements PropertyChangeListener {
     private String defaultTitle = "JSON Formatter";
     private String changedTitle = null;
 
-    public MainWindowFrame() {
+    public MainWindowFrame(Frame frame) {
         this.setName("MainFrame");
         this.setTitle(defaultTitle);
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -21,9 +21,11 @@ public class MainWindowFrame extends JFrame implements PropertyChangeListener {
         this.getContentPane().add(BorderLayout.CENTER, editorPanel);
         
         this.setMinimumSize(new Dimension(820, 720));
-        this.pack();
-        this.setLocationRelativeTo(null);
-        this.setVisible(true);
+        if (frame != null) {
+            this.setLocationRelativeTo(frame);
+        } else {
+            this.setLocationRelativeTo(null);
+        }
     }
 
     @Override
