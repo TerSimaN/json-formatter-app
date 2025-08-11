@@ -22,8 +22,8 @@ import json.formatter.app.constants.ImageIconConstants;
 public class JsonSyntaxEditorPanel extends JPanel {
     private Gson serializeNullsGsonBuilder = new GsonBuilder().serializeNulls().create();
     private Gson prettyPrintSerializeNullsGsonBuilder = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
-    ImageIconConstants iconConstants;
 
+    private ImageIconConstants iconConstants;
     private FileNameExtensionFilter fileFilter;
     private FlowLayout leadingFlowLayout;
     private Dimension iconBtnPreferredSize = new Dimension(30, 30);
