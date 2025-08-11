@@ -1,16 +1,41 @@
 package json.formatter.app.constants;
 
+import java.net.URL;
+
 import javax.swing.ImageIcon;
 
-public abstract class ImageIconConstants {
-    public static ImageIcon arrowLeftBoldIcon = new ImageIcon("src/main/resources/json/formatter/app/icons/arrow-left-bold.png");
-    public static ImageIcon arrowRightBoldIcon = new ImageIcon("src/main/resources/json/formatter/app/icons/arrow-right-bold.png");
-    public static ImageIcon newFileIcon = new ImageIcon("src/main/resources/json/formatter/app/icons/new-file.png");
-    public static ImageIcon openFileIcon = new ImageIcon("src/main/resources/json/formatter/app/icons/open-file.png");
-    public static ImageIcon saveFileIcon = new ImageIcon("src/main/resources/json/formatter/app/icons/save-file.png");
-    public static ImageIcon copyFileIcon = new ImageIcon("src/main/resources/json/formatter/app/icons/copy-file.png");
-    public static ImageIcon formatJsonIcon = new ImageIcon("src/main/resources/json/formatter/app/icons/format-json.png");
-    public static ImageIcon compactJsonIcon = new ImageIcon("src/main/resources/json/formatter/app/icons/compact-json.png");
-    public static ImageIcon wrapEnableIcon = new ImageIcon("src/main/resources/json/formatter/app/icons/wrap-enabled.png");
-    public static ImageIcon wrapDisableIcon = new ImageIcon("src/main/resources/json/formatter/app/icons/wrap-disabled.png");
+public class ImageIconConstants {
+    public final ImageIcon arrowLeftBoldIcon;
+    public final ImageIcon arrowRightBoldIcon;
+    public final ImageIcon newFileIcon;
+    public final ImageIcon openFileIcon;
+    public final ImageIcon saveFileIcon;
+    public final ImageIcon copyFileIcon;
+    public final ImageIcon formatJsonIcon;
+    public final ImageIcon compactJsonIcon;
+    public final ImageIcon wrapEnableIcon;
+    public final ImageIcon wrapDisableIcon;
+
+    public ImageIconConstants() {
+        arrowLeftBoldIcon = createImageIcon("icons/arrow-left-bold.png");
+        arrowRightBoldIcon = createImageIcon("icons/arrow-right-bold.png");
+        newFileIcon = createImageIcon("icons/new-file.png");
+        openFileIcon = createImageIcon("icons/open-file.png");
+        saveFileIcon = createImageIcon("icons/save-file.png");
+        copyFileIcon = createImageIcon("icons/copy-file.png");
+        formatJsonIcon = createImageIcon("icons/format-json.png");
+        compactJsonIcon = createImageIcon("icons/compact-json.png");
+        wrapEnableIcon = createImageIcon("icons/wrap-enabled.png");
+        wrapDisableIcon = createImageIcon("icons/wrap-disabled.png");
+    }
+
+    private ImageIcon createImageIcon(String path) {
+        URL imgUrl = getClass().getResource(path);
+        if (imgUrl != null) {
+            return new ImageIcon(imgUrl);
+        } else {
+            System.err.println("Couldn't find file: " + path);
+            return null;
+        }
+    }
 }

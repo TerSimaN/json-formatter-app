@@ -22,6 +22,7 @@ import json.formatter.app.constants.ImageIconConstants;
 public class JsonSyntaxEditorPanel extends JPanel {
     private Gson serializeNullsGsonBuilder = new GsonBuilder().serializeNulls().create();
     private Gson prettyPrintSerializeNullsGsonBuilder = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
+    ImageIconConstants iconConstants;
 
     private FileNameExtensionFilter fileFilter;
     private FlowLayout leadingFlowLayout;
@@ -59,6 +60,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
 
         fileFilter = new FileNameExtensionFilter("JSON files (*.json)", "json");
         leadingFlowLayout = new FlowLayout(FlowLayout.LEADING, 5, 0);
+        iconConstants = new ImageIconConstants();
 
         JPanel fileControlsPanel = createFileControlsPanel();
         JPanel controlOptionsPanel = createControlOptionsPanel();
@@ -91,22 +93,22 @@ public class JsonSyntaxEditorPanel extends JPanel {
     private JPanel createFileControlsPanel() {
         JPanel panel = new JPanel(leadingFlowLayout);
         
-        newButton = new JButton("New", ImageIconConstants.newFileIcon);
+        newButton = new JButton("New", iconConstants.newFileIcon);
         newButton.setToolTipText("New document");
         newButton.addActionListener(e -> createAndShowNewWindowFrame());
         panel.add(newButton);
 
-        openButton = new JButton("Open", ImageIconConstants.openFileIcon);
+        openButton = new JButton("Open", iconConstants.openFileIcon);
         openButton.setToolTipText("Open a JSON file");
         openButton.addActionListener(e -> open());
         panel.add(openButton);
 
-        saveButton = new JButton("Save", ImageIconConstants.saveFileIcon);
+        saveButton = new JButton("Save", iconConstants.saveFileIcon);
         saveButton.setToolTipText("Save file");
         saveButton.addActionListener(e -> save());
         panel.add(saveButton);
 
-        copyButton = new JButton("Copy", ImageIconConstants.copyFileIcon);
+        copyButton = new JButton("Copy", iconConstants.copyFileIcon);
         copyButton.setToolTipText("Copy");
         copyButton.addActionListener(e -> System.err.println("Unimplemented method 'copy'"));
         copyButton.setEnabled(false);
@@ -122,35 +124,35 @@ public class JsonSyntaxEditorPanel extends JPanel {
     private JPanel createControlOptionsPanel() {
         JPanel panel = new JPanel(leadingFlowLayout);
 
-        JButton formatJsonButton = new JButton(ImageIconConstants.formatJsonIcon);
+        JButton formatJsonButton = new JButton(iconConstants.formatJsonIcon);
         formatJsonButton.setPreferredSize(iconBtnPreferredSize);
         formatJsonButton.setToolTipText("Format JSON: add proper identation and new lines");
         formatJsonButton.setActionCommand("prettyJson");
         formatJsonButton.addActionListener(new FormatJsonListener());
         panel.add(formatJsonButton);
 
-        JButton compactJsonButton = new JButton(ImageIconConstants.compactJsonIcon);
+        JButton compactJsonButton = new JButton(iconConstants.compactJsonIcon);
         compactJsonButton.setPreferredSize(iconBtnPreferredSize);
         compactJsonButton.setToolTipText("Compact JSON: remove all white spacing and new lines");
         compactJsonButton.setActionCommand("compactJson");
         compactJsonButton.addActionListener(new FormatJsonListener());
         panel.add(compactJsonButton);
 
-        JButton undoButton = new JButton(ImageIconConstants.arrowLeftBoldIcon);
+        JButton undoButton = new JButton(iconConstants.arrowLeftBoldIcon);
         undoButton.setPreferredSize(iconBtnPreferredSize);
         undoButton.setToolTipText("Undo");
         undoListener = new UndoListener(undoButton);
         undoButton.addActionListener(undoListener);
         panel.add(undoButton);
 
-        JButton redoButton = new JButton(ImageIconConstants.arrowRightBoldIcon);
+        JButton redoButton = new JButton(iconConstants.arrowRightBoldIcon);
         redoButton.setPreferredSize(iconBtnPreferredSize);
         redoButton.setToolTipText("Redo");
         redoListener = new RedoListener(redoButton);
         redoButton.addActionListener(redoListener);
         panel.add(redoButton);
 
-        lineWrapButton = new JButton(ImageIconConstants.wrapEnableIcon);
+        lineWrapButton = new JButton(iconConstants.wrapEnableIcon);
         lineWrapButton.setPreferredSize(iconBtnPreferredSize);
         lineWrapButton.setToolTipText("Line wraping disabled");
         lineWrapButton.addActionListener(e -> updateLineWrapState());
@@ -245,7 +247,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
     private void updateLineWrapState() {
         jsonSyntaxTextArea.setLineWrap(hasLineWrap);
         hasLineWrap = !hasLineWrap;
-        Icon lineWrapIcon = hasLineWrap ? ImageIconConstants.wrapEnableIcon : ImageIconConstants.wrapDisableIcon;
+        Icon lineWrapIcon = hasLineWrap ? iconConstants.wrapEnableIcon : iconConstants.wrapDisableIcon;
         lineWrapButton.setIcon(lineWrapIcon);
         String toolTipText = hasLineWrap ? "Line wraping disabled" : "Line wraping enabled";
         lineWrapButton.setToolTipText(toolTipText);
