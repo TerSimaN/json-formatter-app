@@ -64,6 +64,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
         JPanel controlOptionsPanel = createControlOptionsPanel();
         JPanel editorTextAreaPanel = createSyntaxTextAreaPanel();
         updateCaretLabel();
+        updateEditorTheme();
 
         this.add(Box.createVerticalStrut(5));
         this.add(fileControlsPanel);
@@ -212,6 +213,15 @@ public class JsonSyntaxEditorPanel extends JPanel {
 
         JOptionPane.showMessageDialog(null, errorMessage,
             "JSON Editor Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private void updateEditorTheme() {
+        try {
+            Theme theme = Theme.load(getClass().getResourceAsStream("/json/formatter/app/themes/json-formatter.xml"));
+            theme.apply(jsonSyntaxTextArea);
+        } catch (IOException e) {
+            createAndShowErrorDialog(e);
+        }
     }
 
     private void updateCaretLabel() {
