@@ -1,6 +1,8 @@
 package json.formatter.app.gui;
 
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -14,7 +16,15 @@ public class MainWindowFrame extends JFrame implements PropertyChangeListener {
     public MainWindowFrame(Frame frame) {
         this.setName("MainFrame");
         this.setTitle(defaultTitle);
-        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        this.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) {
+                if (isDisplayable()) {
+                    setVisible(false);
+                    dispose();
+                }
+            }
+        });
         
         editorPanel = new JsonSyntaxEditorPanel(this);
         editorPanel.addPropertyChangeListener("fullFilePath", this);
