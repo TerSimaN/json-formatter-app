@@ -269,15 +269,21 @@ public class JsonSyntaxEditorPanel extends JPanel {
         JFileChooser fileSave = new JFileChooser(this.lastSaveDirectoryPath);
         fileSave.setFileFilter(fileFilter);
 
-        File saveFile = new File(fullFilePath);
-        fileSave.setSelectedFile(saveFile);
-        
-        int returnValue = fileSave.showSaveDialog(this);
-        if (returnValue == JFileChooser.APPROVE_OPTION) {
-            this.lastSaveDirectoryPath = fileSave.getCurrentDirectory().getPath();
-            saveFile(fileSave.getSelectedFile());
+        File saveFile;
+        if (fullFilePath == null) {
+            saveFile = new File("Untitled.json");
+            fileSave.setSelectedFile(saveFile);
+            
+            int returnValue = fileSave.showSaveDialog(this);
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                this.lastSaveDirectoryPath = fileSave.getCurrentDirectory().getPath();
+                saveFile(fileSave.getSelectedFile());
+            } else {
+                System.err.println("Save command canceled by user.");
+            }
         } else {
-            System.err.println("Save command canceled by user.");
+            saveFile = new File(fullFilePath);
+            saveFile(saveFile);
         }
     }
 
