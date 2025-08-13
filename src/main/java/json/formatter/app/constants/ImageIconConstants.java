@@ -7,6 +7,8 @@ import javax.swing.ImageIcon;
 public class ImageIconConstants {
     public final ImageIcon arrowLeftBoldIcon;
     public final ImageIcon arrowRightBoldIcon;
+    public final ImageIcon arrowUpBoldIcon;
+    public final ImageIcon arrowDownBoldIcon;
     public final ImageIcon newFileIcon;
     public final ImageIcon openFileIcon;
     public final ImageIcon saveFileIcon;
@@ -15,10 +17,13 @@ public class ImageIconConstants {
     public final ImageIcon compactJsonIcon;
     public final ImageIcon wrapEnableIcon;
     public final ImageIcon wrapDisableIcon;
+    public final ImageIcon findReplaceIcon;
 
     public ImageIconConstants() {
         arrowLeftBoldIcon = createImageIcon("icons/arrow-left-bold.png");
         arrowRightBoldIcon = createImageIcon("icons/arrow-right-bold.png");
+        arrowUpBoldIcon = createImageIcon("icons/arrow-up-bold.png");
+        arrowDownBoldIcon = createImageIcon("icons/arrow-down-bold.png");
         newFileIcon = createImageIcon("icons/new-file.png");
         openFileIcon = createImageIcon("icons/open-file.png");
         saveFileIcon = createImageIcon("icons/save-file.png");
@@ -27,6 +32,7 @@ public class ImageIconConstants {
         compactJsonIcon = createImageIcon("icons/compact-json.png");
         wrapEnableIcon = createImageIcon("icons/wrap-enabled.png");
         wrapDisableIcon = createImageIcon("icons/wrap-disabled.png");
+        findReplaceIcon = createImageIcon("icons/find-replace.png");
     }
 
     private ImageIcon createImageIcon(String path) {
