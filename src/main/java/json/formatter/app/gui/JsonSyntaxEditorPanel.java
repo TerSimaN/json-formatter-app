@@ -42,6 +42,17 @@ public class JsonSyntaxEditorPanel extends JPanel {
     // Control options panel
     private JButton lineWrapButton;
     
+    // Find/Replace options panel
+    private JPanel searchPanel;
+    private JPanel replacePanel;
+    private JTextField searchField;
+    private JTextField replaceField;
+    private JCheckBox regexCheckBox;
+    private JCheckBox matchCaseCheckBox;
+    private JCheckBox wholeWordCheckBox;
+    private JButton findReplaceButton;
+    private boolean isfindReplaceShowing = false;
+    
     // Json RSyntax text area
     private TextEditorPane jsonSyntaxTextArea;
     private Caret caret;
@@ -65,6 +76,9 @@ public class JsonSyntaxEditorPanel extends JPanel {
         JPanel fileControlsPanel = createFileControlsPanel();
         JPanel controlOptionsPanel = createControlOptionsPanel();
         JPanel editorTextAreaPanel = createSyntaxTextAreaPanel();
+        searchPanel = createSearchPanel();
+        replacePanel = createReplacePanel();
+        showHideFindReplacePanel();
         updateCaretLabel();
         updateEditorTheme();
 
@@ -72,6 +86,10 @@ public class JsonSyntaxEditorPanel extends JPanel {
         this.add(fileControlsPanel);
         this.add(Box.createVerticalStrut(5));
         this.add(controlOptionsPanel);
+        this.add(Box.createVerticalStrut(5));
+        this.add(searchPanel);
+        this.add(Box.createVerticalStrut(5));
+        this.add(replacePanel);
         this.add(Box.createVerticalStrut(5));
         this.add(editorTextAreaPanel);
     }
@@ -158,11 +176,71 @@ public class JsonSyntaxEditorPanel extends JPanel {
         lineWrapButton.addActionListener(e -> updateLineWrapState());
         panel.add(lineWrapButton);
 
-        JButton findReplaceButton = new JButton(iconConstants.findReplaceIcon);
+        findReplaceButton = new JButton(iconConstants.findReplaceIcon);
         findReplaceButton.setPreferredSize(iconBtnPreferredSize);
-        findReplaceButton.setToolTipText("Find/Replace");
-        findReplaceButton.addActionListener(e -> createAndShowFindReplaceDialog());
+        findReplaceButton.setToolTipText("Find/Replace disabled");
+        findReplaceButton.addActionListener(e -> showHideFindReplacePanel());
         panel.add(findReplaceButton);
+
+        return panel;
+    }
+
+    private JPanel createSearchPanel() {
+        JPanel panel = new JPanel(leadingFlowLayout);
+
+        JLabel findLabel = new JLabel("       Find: ");
+        panel.add(findLabel);
+        searchField = new JTextField(20);
+        panel.add(searchField);
+
+        JButton prevButton = new JButton(iconConstants.arrowUpBoldIcon);
+        prevButton.setPreferredSize(iconBtnPreferredSize);
+        prevButton.setToolTipText("Previous Match");
+        prevButton.setActionCommand("findPrev");
+        prevButton.addActionListener(new FindReplaceListener());
+        panel.add(prevButton);
+
+        JButton nextButton = new JButton(iconConstants.arrowDownBoldIcon);
+        nextButton.setPreferredSize(iconBtnPreferredSize);
+        nextButton.setToolTipText("Next Match");
+        nextButton.setActionCommand("findNext");
+        nextButton.addActionListener(new FindReplaceListener());
+        panel.add(nextButton);
+
+        searchField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                nextButton.doClick();
+            }
+        });
+
+        regexCheckBox = new JCheckBox("Regex");
+        panel.add(regexCheckBox);
+        matchCaseCheckBox = new JCheckBox("Match Case");
+        panel.add(matchCaseCheckBox);
+        wholeWordCheckBox = new JCheckBox("Whole Word");
+        panel.add(wholeWordCheckBox);
+
+        return panel;
+    }
+
+    private JPanel createReplacePanel() {
+        JPanel panel = new JPanel(leadingFlowLayout);
+
+        JLabel replaceLabel = new JLabel("Replace: ");
+        panel.add(replaceLabel);
+        replaceField = new JTextField(20);
+        panel.add(replaceField);
+
+        JButton replaceButton = new JButton("Replace");
+        replaceButton.setActionCommand("replace");
+        replaceButton.addActionListener(new FindReplaceListener());
+        panel.add(replaceButton);
+
+        JButton replaceAllButton = new JButton("Replace All");
+        replaceAllButton.setActionCommand("replaceAll");
+        replaceAllButton.addActionListener(new ReplaceAllListener());
+        panel.add(replaceAllButton);
 
         return panel;
     }
@@ -202,12 +280,6 @@ public class JsonSyntaxEditorPanel extends JPanel {
         newWindowFrame.setVisible(true);
     }
 
-    private void createAndShowFindReplaceDialog() {
-        FindReplaceDialog findReplaceDialog = new FindReplaceDialog(parentFrame, jsonSyntaxTextArea, iconConstants);
-        findReplaceDialog.pack();
-        findReplaceDialog.setVisible(true);
-    }
-
     private void createAndShowErrorDialog(Exception exception) {
         String errorMessage;
         int newlineIndex = exception.getMessage().indexOf('\n');
@@ -227,6 +299,14 @@ public class JsonSyntaxEditorPanel extends JPanel {
 
         JOptionPane.showMessageDialog(null, errorMessage,
             "JSON Editor Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private void showHideFindReplacePanel() {
+        searchPanel.setVisible(isfindReplaceShowing);
+        replacePanel.setVisible(isfindReplaceShowing);
+        isfindReplaceShowing = !isfindReplaceShowing;
+        String toolTipText = isfindReplaceShowing ? "Find/Replace enabled" : "Find/Replace disabled";
+        findReplaceButton.setToolTipText(toolTipText);
     }
 
     private void updateEditorTheme() {
@@ -427,6 +507,66 @@ public class JsonSyntaxEditorPanel extends JPanel {
                 } catch (JsonParseException jsonParseException) {
                     createAndShowErrorDialog(jsonParseException);
                 }
+            }
+        }
+    }
+
+    class FindReplaceListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String command = e.getActionCommand();
+            boolean forward = command.equals("findNext") || command.equals("replace");
+
+            SearchContext context = new SearchContext();
+            String searchText = searchField.getText();
+            String replaceText = replaceField.getText();
+            if (searchText.isEmpty()) {
+                return;
+            }
+
+            context.setSearchFor(searchText);
+            context.setMatchCase(matchCaseCheckBox.isSelected());
+            context.setRegularExpression(regexCheckBox.isSelected());
+            context.setWholeWord(wholeWordCheckBox.isSelected());
+            context.setSearchForward(forward);
+
+            boolean found;
+            if (command.equals("replace")) {
+                if (replaceText.isEmpty()) {
+                    return;
+                }
+
+                context.setReplaceWith(replaceText);
+                found = SearchEngine.replace(jsonSyntaxTextArea, context).wasFound();
+            } else {
+                found = SearchEngine.find(jsonSyntaxTextArea, context).wasFound();
+            }
+
+            if (!found) {
+                JOptionPane.showMessageDialog(parentFrame, "Text not found");
+            }
+        }
+    }
+
+    class ReplaceAllListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            SearchContext replaceContext = new SearchContext();
+            String searchText = searchField.getText();
+            String replaceText = replaceField.getText();
+            if (searchText.isEmpty() || replaceText.isEmpty()) {
+                return;
+            }
+
+            replaceContext.setSearchFor(searchText);
+            replaceContext.setReplaceWith(replaceText);
+            replaceContext.setMatchCase(matchCaseCheckBox.isSelected());
+            replaceContext.setRegularExpression(regexCheckBox.isSelected());
+            replaceContext.setWholeWord(wholeWordCheckBox.isSelected());
+
+            boolean found = SearchEngine.replaceAll(jsonSyntaxTextArea, replaceContext).wasFound();
+            if (!found) {
+                JOptionPane.showMessageDialog(parentFrame, "Text not found");
             }
         }
     }
