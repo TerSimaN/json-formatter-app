@@ -158,6 +158,12 @@ public class JsonSyntaxEditorPanel extends JPanel {
         lineWrapButton.addActionListener(e -> updateLineWrapState());
         panel.add(lineWrapButton);
 
+        JButton findReplaceButton = new JButton(iconConstants.findReplaceIcon);
+        findReplaceButton.setPreferredSize(iconBtnPreferredSize);
+        findReplaceButton.setToolTipText("Find/Replace");
+        findReplaceButton.addActionListener(e -> createAndShowFindReplaceDialog());
+        panel.add(findReplaceButton);
+
         return panel;
     }
 
@@ -194,6 +200,12 @@ public class JsonSyntaxEditorPanel extends JPanel {
         MainWindowFrame newWindowFrame = new MainWindowFrame(parentFrame);
         newWindowFrame.pack();
         newWindowFrame.setVisible(true);
+    }
+
+    private void createAndShowFindReplaceDialog() {
+        FindReplaceDialog findReplaceDialog = new FindReplaceDialog(parentFrame, jsonSyntaxTextArea, iconConstants);
+        findReplaceDialog.pack();
+        findReplaceDialog.setVisible(true);
     }
 
     private void createAndShowErrorDialog(Exception exception) {
@@ -288,12 +300,31 @@ public class JsonSyntaxEditorPanel extends JPanel {
     }
 
     private void loadFile(File file) {
-        try {
+        if (!hasLineWrap) {
+            updateLineWrapState();
+        }
+        
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             fullFilePath = file.getAbsolutePath();
             updateWindowTitle();
 
-            FileLocation selectedFileLocation = FileLocation.create(file);
-            jsonSyntaxTextArea.load(selectedFileLocation);
+            StringBuilder strBuilder = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if ((line.length() > 10000) && hasLineWrap) {
+                    updateLineWrapState();
+                }
+
+                strBuilder.append(line + "\n");
+            }
+            
+            JsonElement parsedJsonElement = JsonParser.parseString(strBuilder.toString());
+            String formattedJsonString = prettyPrintSerializeNullsGsonBuilder.toJson(parsedJsonElement);
+            
+            jsonSyntaxTextArea.setText(formattedJsonString);
+            jsonSyntaxTextArea.setCaretPosition(0);
+        } catch (FileNotFoundException fe) {
+            System.err.println("File not found: " + fe.getMessage());
         } catch (IOException e) {
             System.err.println("Couldn't read file: " + e.getMessage());
         }
