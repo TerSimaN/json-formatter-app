@@ -185,6 +185,10 @@ public class JsonSyntaxEditorPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Creates a search JPanel
+     * @return the panel
+     */
     private JPanel createSearchPanel() {
         JPanel panel = new JPanel(leadingFlowLayout);
 
@@ -224,6 +228,10 @@ public class JsonSyntaxEditorPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Creates a replace JPanel
+     * @return the panel
+     */
     private JPanel createReplacePanel() {
         JPanel panel = new JPanel(leadingFlowLayout);
 
@@ -305,7 +313,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
         searchPanel.setVisible(isfindReplaceShowing);
         replacePanel.setVisible(isfindReplaceShowing);
         isfindReplaceShowing = !isfindReplaceShowing;
-        String toolTipText = isfindReplaceShowing ? "Find/Replace enabled" : "Find/Replace disabled";
+        String toolTipText = isfindReplaceShowing ? "Find/Replace disabled" : "Find/Replace enabled";
         findReplaceButton.setToolTipText(toolTipText);
     }
 
