@@ -32,7 +32,7 @@ public class ImageIconConstants {
         compactJsonIcon = createImageIcon("icons/compact-json.png");
         wrapEnableIcon = createImageIcon("icons/wrap-enabled.png");
         wrapDisableIcon = createImageIcon("icons/wrap-disabled.png");
-        findReplaceIcon = createImageIcon("icons/find-replace.png");
+        findReplaceIcon = createImageIcon("icons/text-search.png");
     }
 
     private ImageIcon createImageIcon(String path) {
