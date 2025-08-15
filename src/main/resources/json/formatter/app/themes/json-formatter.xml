@@ -13,10 +13,10 @@
    <!--  General editor colors. -->
    <background color="ffffff"/>
    <caret color="000000"/>
-   <selection useFG="false" bg="d3d3d3" roundedEdges="false"/>
+   <selection useFG="false" bg="bababa" roundedEdges="false"/>
    <currentLineHighlight color="f0f0f0" fade="false"/>
    <marginLine fg="b0b4b9"/>
-   <markAllHighlight color="f0f0f0"/>
+   <markAllHighlight color="e1ff99"/>
    <markOccurrencesHighlight color="ffc800" border="false"/>
    <matchedBracket fg="b3d0cd" bg="b3d0cd" highlightBoth="true" animate="true"/>
    <hyperlinks fg="0000ff"/>
