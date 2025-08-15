@@ -28,6 +28,7 @@ public class MainWindowFrame extends JFrame implements PropertyChangeListener {
         
         editorPanel = new JsonSyntaxEditorPanel(this);
         editorPanel.addPropertyChangeListener("fullFilePath", this);
+        editorPanel.addPropertyChangeListener("fileChanged", this);
         this.getContentPane().add(BorderLayout.CENTER, editorPanel);
         
         this.setMinimumSize(new Dimension(820, 720));
@@ -42,10 +43,16 @@ public class MainWindowFrame extends JFrame implements PropertyChangeListener {
     public void propertyChange(PropertyChangeEvent evt) {
         String property = evt.getPropertyName();
 
-        String newTitle = null;
+        String nextTitle = null;
         if (property.equals("fullFilePath")) {
-            newTitle = editorPanel.getFullFilePath();
-            changedTitle = String.format("%1$s (%2$s)", defaultTitle, newTitle);
+            nextTitle = editorPanel.getFullFilePath();
+            changedTitle = String.format("%1$s (%2$s)", defaultTitle, nextTitle);
+            this.setTitle(changedTitle);
+        }
+
+        if (property.equals("fileChanged")) {
+            nextTitle = editorPanel.getFullFilePath();
+            changedTitle = String.format("%1$s (* %2$s)", defaultTitle, nextTitle);
             this.setTitle(changedTitle);
         }
     }

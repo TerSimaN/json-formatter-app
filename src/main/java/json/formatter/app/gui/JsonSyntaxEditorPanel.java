@@ -7,6 +7,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -37,12 +39,13 @@ public class JsonSyntaxEditorPanel extends JPanel {
     private String lastSaveDirectoryPath = null;
     private String fullFilePath = null;
     private boolean hasFullFilePathChanged = false;
+    private boolean hasFileChanged = false;
 
     // Control options panel
     private JButton lineWrapButton;
     private JButton findReplaceButton;
     
-    // Find/Replace options panel
+    // Search options panel
     private JPanel searchPanel;
     private JTextField searchField;
     private JButton prevButton;
@@ -278,6 +281,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
         jsonSyntaxTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
         jsonSyntaxTextArea.setCodeFoldingEnabled(true);
         jsonSyntaxTextArea.getDocument().addUndoableEditListener(new JsonUndoableEditListener());
+        jsonSyntaxTextArea.getDocument().addDocumentListener(new SyntaxTextAreaDocumentListener());
 
         caret = jsonSyntaxTextArea.getCaret();
         caret.addChangeListener(e -> updateCaretLabel());
@@ -375,6 +379,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
         if (!replacePanel.isVisible()) {
             searchPanel.setVisible(isSearchPanelShowing);
             isSearchPanelShowing = !isSearchPanelShowing;
+            jsonSyntaxTextArea.clearMarkAllHighlights();
         }
     }
 
@@ -392,6 +397,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
             replacePanel.setVisible(isReplacePanelShowing);
             isSearchPanelShowing = !isSearchPanelShowing;
             isReplacePanelShowing = !isReplacePanelShowing;
+            jsonSyntaxTextArea.clearMarkAllHighlights();
         }
     }
 
@@ -471,9 +477,6 @@ public class JsonSyntaxEditorPanel extends JPanel {
         }
         
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            fullFilePath = file.getAbsolutePath();
-            updateWindowTitle();
-
             StringBuilder strBuilder = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
@@ -489,6 +492,10 @@ public class JsonSyntaxEditorPanel extends JPanel {
             
             jsonSyntaxTextArea.setText(formattedJsonString);
             jsonSyntaxTextArea.setCaretPosition(0);
+            
+            hasFileChanged = false;
+            fullFilePath = file.getAbsolutePath();
+            updateWindowTitle();
         } catch (FileNotFoundException fe) {
             System.err.println("File not found: " + fe.getMessage());
         } catch (IOException e) {
@@ -498,19 +505,34 @@ public class JsonSyntaxEditorPanel extends JPanel {
 
     private void saveFile(File file) {
         try {
-            fullFilePath = file.getAbsolutePath();
-            updateWindowTitle();
-
             FileLocation selectedFileLocation = FileLocation.create(file);
             jsonSyntaxTextArea.saveAs(selectedFileLocation);
+            
+            hasFileChanged = false;
+            fullFilePath = file.getAbsolutePath();
+            updateWindowTitle();
         } catch (IOException e) {
             System.err.println("Couldn't write to file: " + e.getMessage());
         }
     }
 
     private void updateWindowTitle() {
-        this.firePropertyChange("fullFilePath", hasFullFilePathChanged, !hasFullFilePathChanged);
-        hasFullFilePathChanged = !hasFullFilePathChanged;
+        String propertyName = null;
+        boolean oldValue = false;
+        boolean newValue = false;
+
+        if (hasFileChanged) {
+            propertyName = "fileChanged";
+            newValue = hasFileChanged;
+            oldValue = !newValue;
+        } else {
+            propertyName = "fullFilePath";
+            oldValue = hasFullFilePathChanged;
+            newValue = !oldValue;
+            hasFullFilePathChanged = !newValue;
+        }
+
+        this.firePropertyChange(propertyName, oldValue, newValue);
     }
 
     // Class listening for edits that can be undone
@@ -658,6 +680,23 @@ public class JsonSyntaxEditorPanel extends JPanel {
             boolean found = SearchEngine.replaceAll(jsonSyntaxTextArea, replaceContext).wasFound();
             if (!found) {
                 JOptionPane.showMessageDialog(parentFrame, "Text not found");
+            }
+        }
+    }
+
+    // A custom RSyntaxTextArea document listener
+    class SyntaxTextAreaDocumentListener implements DocumentListener {
+        @Override
+        public void insertUpdate(DocumentEvent e) { }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) { }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            if (!hasFileChanged) {
+                hasFileChanged = true;
+                updateWindowTitle();
             }
         }
     }
