@@ -325,6 +325,9 @@ public class JsonSyntaxEditorPanel extends JPanel {
         if (errorMessage.contains("malformed JSON")) {
             int firstIndex = errorMessage.indexOf("at");
             errorMessage = "Malformed JSON " + errorMessage.substring(firstIndex, newlineIndex);
+        } else if (errorMessage.contains("Malformed")) {
+            int firstIndex = errorMessage.indexOf("Malformed");
+            errorMessage = errorMessage.substring(firstIndex);
         } else if (errorMessage.contains("Unterminated string")) {
             int firstIndex = errorMessage.indexOf("Unterminated");
             errorMessage = errorMessage.substring(firstIndex, newlineIndex);
@@ -356,7 +359,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
             }
         });
 
-        key = KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0);
+        key = KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0);
         inputMap.put(key, "backwardSearch");
         actionMap.put("backwardSearch", new AbstractAction() {
             @Override
@@ -365,7 +368,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
             }
         });
 
-        key = KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0);
+        key = KeyStroke.getKeyStroke(KeyEvent.VK_F4, 0);
         inputMap.put(key, "forwardSearch");
         actionMap.put("forwardSearch", new AbstractAction() {
             @Override
@@ -497,9 +500,11 @@ public class JsonSyntaxEditorPanel extends JPanel {
             fullFilePath = file.getAbsolutePath();
             updateWindowTitle();
         } catch (FileNotFoundException fe) {
-            System.err.println("File not found: " + fe.getMessage());
+            createAndShowErrorDialog(fe);
         } catch (IOException e) {
-            System.err.println("Couldn't read file: " + e.getMessage());
+            createAndShowErrorDialog(e);
+        } catch (JsonSyntaxException jsonSyntaxException) {
+            createAndShowErrorDialog(jsonSyntaxException);
         }
     }
 
@@ -512,7 +517,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
             fullFilePath = file.getAbsolutePath();
             updateWindowTitle();
         } catch (IOException e) {
-            System.err.println("Couldn't write to file: " + e.getMessage());
+            createAndShowErrorDialog(e);
         }
     }
 
