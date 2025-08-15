@@ -4,8 +4,7 @@ import java.io.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import java.awt.event.KeyEvent;
 
 import javax.swing.*;
 import javax.swing.event.UndoableEditEvent;
@@ -26,7 +25,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
     private ImageIconConstants iconConstants;
     private FileNameExtensionFilter fileFilter;
     private FlowLayout leadingFlowLayout;
-    private Dimension iconBtnPreferredSize = new Dimension(30, 30);
+    private Dimension iconBtnPreferredSize = new Dimension(32, 32);
     private Frame parentFrame;
 
     // File controls panel
@@ -41,17 +40,22 @@ public class JsonSyntaxEditorPanel extends JPanel {
 
     // Control options panel
     private JButton lineWrapButton;
+    private JButton findReplaceButton;
     
     // Find/Replace options panel
     private JPanel searchPanel;
-    private JPanel replacePanel;
     private JTextField searchField;
-    private JTextField replaceField;
+    private JButton prevButton;
+    private JButton nextButton;
     private JCheckBox regexCheckBox;
     private JCheckBox matchCaseCheckBox;
     private JCheckBox wholeWordCheckBox;
-    private JButton findReplaceButton;
-    private boolean isfindReplaceShowing = false;
+    private boolean isSearchPanelShowing = true;
+
+    // Replace options panel
+    private JPanel replacePanel;
+    private JTextField replaceField;
+    private boolean isReplacePanelShowing = true;
     
     // Json RSyntax text area
     private TextEditorPane jsonSyntaxTextArea;
@@ -67,18 +71,21 @@ public class JsonSyntaxEditorPanel extends JPanel {
         this.parentFrame = parent;
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.setName("JsonEditorPanel");
-        this.addComponentListener(new PanelEventListener());
 
         fileFilter = new FileNameExtensionFilter("JSON files (*.json)", "json");
         leadingFlowLayout = new FlowLayout(FlowLayout.LEADING, 5, 0);
         iconConstants = new ImageIconConstants();
 
+        addKeyBindings();
+
         JPanel fileControlsPanel = createFileControlsPanel();
         JPanel controlOptionsPanel = createControlOptionsPanel();
         JPanel editorTextAreaPanel = createSyntaxTextAreaPanel();
         searchPanel = createSearchPanel();
+        searchPanel.setVisible(false);
         replacePanel = createReplacePanel();
-        showHideFindReplacePanel();
+        replacePanel.setVisible(false);
+
         updateCaretLabel();
         updateEditorTheme();
 
@@ -178,8 +185,8 @@ public class JsonSyntaxEditorPanel extends JPanel {
 
         findReplaceButton = new JButton(iconConstants.findReplaceIcon);
         findReplaceButton.setPreferredSize(iconBtnPreferredSize);
-        findReplaceButton.setToolTipText("Find/Replace disabled");
-        findReplaceButton.addActionListener(e -> showHideFindReplacePanel());
+        findReplaceButton.setToolTipText("Find/Replace");
+        findReplaceButton.addActionListener(e -> showHideReplacePanel());
         panel.add(findReplaceButton);
 
         return panel;
@@ -197,14 +204,13 @@ public class JsonSyntaxEditorPanel extends JPanel {
         searchField = new JTextField(20);
         panel.add(searchField);
 
-        JButton prevButton = new JButton(iconConstants.arrowUpBoldIcon);
+        prevButton = new JButton(iconConstants.arrowUpBoldIcon);
         prevButton.setPreferredSize(iconBtnPreferredSize);
         prevButton.setToolTipText("Previous Match");
-        prevButton.setActionCommand("findPrev");
         prevButton.addActionListener(new FindReplaceListener());
         panel.add(prevButton);
 
-        JButton nextButton = new JButton(iconConstants.arrowDownBoldIcon);
+        nextButton = new JButton(iconConstants.arrowDownBoldIcon);
         nextButton.setPreferredSize(iconBtnPreferredSize);
         nextButton.setToolTipText("Next Match");
         nextButton.setActionCommand("findNext");
@@ -245,6 +251,13 @@ public class JsonSyntaxEditorPanel extends JPanel {
         replaceButton.addActionListener(new FindReplaceListener());
         panel.add(replaceButton);
 
+        replaceField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                replaceButton.doClick();
+            }
+        });
+
         JButton replaceAllButton = new JButton("Replace All");
         replaceAllButton.setActionCommand("replaceAll");
         replaceAllButton.addActionListener(new ReplaceAllListener());
@@ -282,12 +295,20 @@ public class JsonSyntaxEditorPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Creates a new json editor window
+     */
     private void createAndShowNewWindowFrame() {
         MainWindowFrame newWindowFrame = new MainWindowFrame(parentFrame);
         newWindowFrame.pack();
         newWindowFrame.setVisible(true);
     }
 
+    /**
+     * Brings up an error dialog that displays a message
+     * determined by the <code>exception</code> parameter
+     * @param exception determines what message to display
+     */
     private void createAndShowErrorDialog(Exception exception) {
         String errorMessage;
         int newlineIndex = exception.getMessage().indexOf('\n');
@@ -309,12 +330,69 @@ public class JsonSyntaxEditorPanel extends JPanel {
             "JSON Editor Error", JOptionPane.ERROR_MESSAGE);
     }
 
-    private void showHideFindReplacePanel() {
-        searchPanel.setVisible(isfindReplaceShowing);
-        replacePanel.setVisible(isfindReplaceShowing);
-        isfindReplaceShowing = !isfindReplaceShowing;
-        String toolTipText = isfindReplaceShowing ? "Find/Replace disabled" : "Find/Replace enabled";
-        findReplaceButton.setToolTipText(toolTipText);
+    private void addKeyBindings() {
+        InputMap inputMap = this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        ActionMap actionMap = this.getActionMap();
+
+        KeyStroke key = KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK);
+        inputMap.put(key, "showHideFind");
+        actionMap.put("showHideFind", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showHideSearchPanel();
+            }
+        });
+
+        key = KeyStroke.getKeyStroke(KeyEvent.VK_H, KeyEvent.CTRL_DOWN_MASK);
+        inputMap.put(key, "showHideFindAndReplace");
+        actionMap.put("showHideFindAndReplace", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showHideReplacePanel();
+            }
+        });
+
+        key = KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0);
+        inputMap.put(key, "backwardSearch");
+        actionMap.put("backwardSearch", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                prevButton.doClick();
+            }
+        });
+
+        key = KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0);
+        inputMap.put(key, "forwardSearch");
+        actionMap.put("forwardSearch", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                nextButton.doClick();
+            }
+        });
+    }
+
+    private void showHideSearchPanel() {
+        if (!replacePanel.isVisible()) {
+            searchPanel.setVisible(isSearchPanelShowing);
+            isSearchPanelShowing = !isSearchPanelShowing;
+        }
+    }
+
+    private void showHideReplacePanel() {
+        if (!searchPanel.isVisible()) {
+            searchPanel.setVisible(isSearchPanelShowing);
+            replacePanel.setVisible(isReplacePanelShowing);
+            isSearchPanelShowing = !isSearchPanelShowing;
+            isReplacePanelShowing = !isReplacePanelShowing;
+        } else if (!replacePanel.isVisible()) {
+            replacePanel.setVisible(isReplacePanelShowing);
+            isReplacePanelShowing = !isReplacePanelShowing;
+        } else {
+            searchPanel.setVisible(isSearchPanelShowing);            
+            replacePanel.setVisible(isReplacePanelShowing);
+            isSearchPanelShowing = !isSearchPanelShowing;
+            isReplacePanelShowing = !isReplacePanelShowing;
+        }
     }
 
     private void updateEditorTheme() {
@@ -420,7 +498,9 @@ public class JsonSyntaxEditorPanel extends JPanel {
 
     private void saveFile(File file) {
         try {
+            fullFilePath = file.getAbsolutePath();
             updateWindowTitle();
+
             FileLocation selectedFileLocation = FileLocation.create(file);
             jsonSyntaxTextArea.saveAs(selectedFileLocation);
         } catch (IOException e) {
@@ -492,6 +572,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
         }   
     }
     
+    // A json format event listener
     class FormatJsonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -519,6 +600,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
         }
     }
 
+    // A find/replace event listener
     class FindReplaceListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -556,6 +638,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
         }
     }
 
+    // A replaceAll event listener
     class ReplaceAllListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -575,47 +658,6 @@ public class JsonSyntaxEditorPanel extends JPanel {
             boolean found = SearchEngine.replaceAll(jsonSyntaxTextArea, replaceContext).wasFound();
             if (!found) {
                 JOptionPane.showMessageDialog(parentFrame, "Text not found");
-            }
-        }
-    }
-
-    // Custom event listeners and classes
-    class PanelEventListener extends ComponentAdapter {
-        @Override
-        public void componentResized(ComponentEvent e) {
-            Dimension componentDimension = e.getComponent().getSize();
-            int componentWidth = componentDimension.width;
-            
-            if (componentWidth < 580) {
-                copyButton.setText("");
-                copyButton.setPreferredSize(iconBtnPreferredSize);
-            } else {
-                copyButton.setText("Copy");
-                copyButton.setPreferredSize(null);
-            }
-
-            if (componentWidth < 524) {
-                saveButton.setText("");
-                saveButton.setPreferredSize(iconBtnPreferredSize);
-            } else {
-                saveButton.setText("Save");
-                saveButton.setPreferredSize(null);
-            }
-
-            if (componentWidth < 467) {
-                openButton.setText("");
-                openButton.setPreferredSize(iconBtnPreferredSize);
-            } else {
-                openButton.setText("Open");
-                openButton.setPreferredSize(null);
-            }
-
-            if (componentWidth < 408) {
-                newButton.setText("");
-                newButton.setPreferredSize(iconBtnPreferredSize);
-            } else {
-                newButton.setText("New");
-                newButton.setPreferredSize(null);
             }
         }
     }
