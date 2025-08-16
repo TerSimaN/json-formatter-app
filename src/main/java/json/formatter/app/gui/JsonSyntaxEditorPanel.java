@@ -361,21 +361,11 @@ public class JsonSyntaxEditorPanel extends JPanel {
 
         key = KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0);
         inputMap.put(key, "backwardSearch");
-        actionMap.put("backwardSearch", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                prevButton.doClick();
-            }
-        });
+        actionMap.put("backwardSearch", new FindReplaceListener());
 
         key = KeyStroke.getKeyStroke(KeyEvent.VK_F4, 0);
         inputMap.put(key, "forwardSearch");
-        actionMap.put("forwardSearch", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                nextButton.doClick();
-            }
-        });
+        actionMap.put("forwardSearch", new FindReplaceListener(true));
 
         key = KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK);
         inputMap.put(key, "newFile");
@@ -655,11 +645,20 @@ public class JsonSyntaxEditorPanel extends JPanel {
     }
 
     // A find/replace event listener
-    class FindReplaceListener implements ActionListener {
+    class FindReplaceListener extends AbstractAction {
+        private boolean forwardSearch = false;
+
+        FindReplaceListener() {}
+
+        FindReplaceListener(boolean doForwardSearch) {
+            this.forwardSearch = doForwardSearch;
+        }
+
         @Override
         public void actionPerformed(ActionEvent e) {
             String command = e.getActionCommand();
-            boolean forward = command.equals("findNext") || command.equals("replace");
+            boolean hasCommand = (command != null) && (command.equals("findNext") || command.equals("replace"));
+            boolean forward = forwardSearch || hasCommand;
 
             SearchContext context = new SearchContext();
             String searchText = searchField.getText();
@@ -675,7 +674,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
             context.setSearchForward(forward);
 
             boolean found;
-            if (command.equals("replace")) {
+            if ((command != null) && command.equals("replace")) {
                 if (replaceText.isEmpty()) {
                     return;
                 }
