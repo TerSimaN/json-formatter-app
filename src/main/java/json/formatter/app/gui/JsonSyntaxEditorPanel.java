@@ -376,6 +376,33 @@ public class JsonSyntaxEditorPanel extends JPanel {
                 nextButton.doClick();
             }
         });
+
+        key = KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK);
+        inputMap.put(key, "newFile");
+        actionMap.put("newFile", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                createAndShowNewWindowFrame();
+            }
+        });
+
+        key = KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK);
+        inputMap.put(key, "openFile");
+        actionMap.put("openFile", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                open();
+            }
+        });
+
+        key = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);
+        inputMap.put(key, "saveFile");
+        actionMap.put("saveFile", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                save();
+            }
+        });
     }
 
     private void showHideSearchPanel() {
