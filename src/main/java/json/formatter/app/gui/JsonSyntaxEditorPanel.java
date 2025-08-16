@@ -37,7 +37,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
     private JButton copyButton;
     private String lastOpenDirectoryPath = null;
     private String lastSaveDirectoryPath = null;
-    private String fullFilePath = null;
+    private String fullFilePath = "Untitled";
     private boolean hasFullFilePathChanged = false;
     private boolean hasFileChanged = false;
 
@@ -473,7 +473,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
         fileSave.setFileFilter(fileFilter);
 
         File saveFile;
-        if (fullFilePath == null) {
+        if (fullFilePath.equals("Untitled")) {
             saveFile = new File("Untitled.json");
             fileSave.setSelectedFile(saveFile);
             
