@@ -78,7 +78,6 @@ public class JsonSyntaxEditorPanel extends JPanel {
         fileFilter = new FileNameExtensionFilter("JSON files (*.json)", "json");
         leadingFlowLayout = new FlowLayout(FlowLayout.LEADING, 5, 0);
         iconConstants = new ImageIconConstants();
-
         addKeyBindings();
 
         JPanel fileControlsPanel = createFileControlsPanel();
@@ -182,7 +181,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
 
         lineWrapButton = new JButton(iconConstants.wrapEnableIcon);
         lineWrapButton.setPreferredSize(iconBtnPreferredSize);
-        lineWrapButton.setToolTipText("Line wraping disabled");
+        lineWrapButton.setToolTipText("Line wrap (currently disabled)");
         lineWrapButton.addActionListener(e -> updateLineWrapState());
         panel.add(lineWrapButton);
 
@@ -450,11 +449,11 @@ public class JsonSyntaxEditorPanel extends JPanel {
 
     private void updateLineWrapState() {
         jsonSyntaxTextArea.setLineWrap(hasLineWrap);
-        hasLineWrap = !hasLineWrap;
-        Icon lineWrapIcon = hasLineWrap ? iconConstants.wrapEnableIcon : iconConstants.wrapDisableIcon;
+        Icon lineWrapIcon = hasLineWrap ? iconConstants.wrapDisableIcon : iconConstants.wrapEnableIcon;
         lineWrapButton.setIcon(lineWrapIcon);
-        String toolTipText = hasLineWrap ? "Line wraping disabled" : "Line wraping enabled";
+        String toolTipText = hasLineWrap ? "Line wrap (currently enabled)" : "Line wrap (currently disabled)";
         lineWrapButton.setToolTipText(toolTipText);
+        hasLineWrap = !hasLineWrap;
     }
 
     private void open() {
