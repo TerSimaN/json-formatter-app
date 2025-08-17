@@ -20,7 +20,7 @@ import org.fife.ui.rtextarea.*;
 
 import json.formatter.app.constants.ImageIconConstants;
 
-public class JsonSyntaxEditorPanel extends JPanel {
+public class JsonSyntaxEditorPanel extends JPanel implements DocumentListener {
     private Gson serializeNullsGsonBuilder = new GsonBuilder().serializeNulls().create();
     private Gson prettyPrintSerializeNullsGsonBuilder = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 
@@ -219,12 +219,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
         nextButton.addActionListener(new FindReplaceListener());
         panel.add(nextButton);
 
-        searchField.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                nextButton.doClick();
-            }
-        });
+        searchField.addActionListener(e -> nextButton.doClick());
 
         regexCheckBox = new JCheckBox("Regex");
         panel.add(regexCheckBox);
@@ -253,12 +248,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
         replaceButton.addActionListener(new FindReplaceListener());
         panel.add(replaceButton);
 
-        replaceField.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                replaceButton.doClick();
-            }
-        });
+        replaceField.addActionListener(e -> replaceButton.doClick());
 
         JButton replaceAllButton = new JButton("Replace All");
         replaceAllButton.setActionCommand("replaceAll");
@@ -280,7 +270,7 @@ public class JsonSyntaxEditorPanel extends JPanel {
         jsonSyntaxTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
         jsonSyntaxTextArea.setCodeFoldingEnabled(true);
         jsonSyntaxTextArea.getDocument().addUndoableEditListener(new JsonUndoableEditListener());
-        jsonSyntaxTextArea.getDocument().addDocumentListener(new SyntaxTextAreaDocumentListener());
+        jsonSyntaxTextArea.getDocument().addDocumentListener(this);
 
         caret = jsonSyntaxTextArea.getCaret();
         caret.addChangeListener(e -> updateCaretLabel());
@@ -714,20 +704,17 @@ public class JsonSyntaxEditorPanel extends JPanel {
         }
     }
 
-    // A custom RSyntaxTextArea document listener
-    class SyntaxTextAreaDocumentListener implements DocumentListener {
-        @Override
-        public void insertUpdate(DocumentEvent e) { }
+    @Override
+    public void insertUpdate(DocumentEvent e) { }
 
-        @Override
-        public void removeUpdate(DocumentEvent e) { }
+    @Override
+    public void removeUpdate(DocumentEvent e) { }
 
-        @Override
-        public void changedUpdate(DocumentEvent e) {
-            if (!hasFileChanged) {
-                hasFileChanged = true;
-                updateWindowTitle();
-            }
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+        if (!hasFileChanged) {
+            hasFileChanged = true;
+            updateWindowTitle();
         }
     }
 }
