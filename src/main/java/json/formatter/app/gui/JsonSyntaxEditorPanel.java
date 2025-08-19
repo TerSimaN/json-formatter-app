@@ -4,6 +4,7 @@ import java.io.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 import javax.swing.*;
@@ -271,6 +272,7 @@ public class JsonSyntaxEditorPanel extends JPanel implements DocumentListener {
         jsonSyntaxTextArea.setCodeFoldingEnabled(true);
         jsonSyntaxTextArea.getDocument().addUndoableEditListener(new JsonUndoableEditListener());
         jsonSyntaxTextArea.getDocument().addDocumentListener(this);
+        jsonSyntaxTextArea.addKeyListener(new SyntaxTextAreaKeyListener());
 
         caret = jsonSyntaxTextArea.getCaret();
         caret.addChangeListener(e -> updateCaretLabel());
@@ -700,6 +702,22 @@ public class JsonSyntaxEditorPanel extends JPanel implements DocumentListener {
             boolean found = SearchEngine.replaceAll(jsonSyntaxTextArea, replaceContext).wasFound();
             if (!found) {
                 JOptionPane.showMessageDialog(parentFrame, "Text not found");
+            }
+        }
+    }
+
+    class SyntaxTextAreaKeyListener extends KeyAdapter {
+        @Override
+        public void keyTyped(KeyEvent e) {
+            int keyChar = e.getKeyChar();
+            if (keyChar == 26) {
+                undoListener.updateUndoState();
+                redoListener.updateRedoState();
+            }
+
+            if (keyChar == 25) {
+                redoListener.updateRedoState();
+                undoListener.updateUndoState();
             }
         }
     }
