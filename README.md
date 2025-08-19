@@ -11,8 +11,11 @@ mvn clean package
 
 ### To start the project run:
 ```
-java -jar .\target\json-formatter-v02-1.0-SNAPSHOT.jar
+java -jar .\target\json-formatter-v02.jar
 ```
+Or double click the generated `json-formatter-v02.jar` file
+
+----------
 
 if using `.jar` dependencies needed to compile and run the project add the following code to the **pom.xml** file:
 ```xml
@@ -40,7 +43,7 @@ if using `.jar` dependencies needed to compile and run the project add the follo
 </plugins>
 ```
 
-If the error `no main manifest attribute, in .\target\json-formatter-v02-1.0-SNAPSHOT.jar` is returned replace the `maven-jar-plugin` code inside the **pom.xml** file with the following code:
+If the error `no main manifest attribute, in .\target\json-formatter-v02.jar` is returned replace the `maven-jar-plugin` code inside the **pom.xml** file with the following code:
 ```xml
 <plugin>
     <artifactId>maven-jar-plugin</artifactId>
