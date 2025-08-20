@@ -15,8 +15,8 @@ public class ImageIconConstants {
     public final ImageIcon copyFileIcon;
     public final ImageIcon formatJsonIcon;
     public final ImageIcon compactJsonIcon;
-    public final ImageIcon wrapEnableIcon;
-    public final ImageIcon wrapDisableIcon;
+    public final ImageIcon lineWrapEnableIcon;
+    public final ImageIcon lineWrapDisableIcon;
     public final ImageIcon findReplaceIcon;
 
     public ImageIconConstants() {
@@ -30,9 +30,9 @@ public class ImageIconConstants {
         copyFileIcon = createImageIcon("icons/copy-file.png");
         formatJsonIcon = createImageIcon("icons/format-json.png");
         compactJsonIcon = createImageIcon("icons/compact-json.png");
-        wrapEnableIcon = createImageIcon("icons/wrap-enabled.png");
-        wrapDisableIcon = createImageIcon("icons/wrap-disabled.png");
-        findReplaceIcon = createImageIcon("icons/text-search.png");
+        lineWrapEnableIcon = createImageIcon("icons/line-wrap-enabled.png");
+        lineWrapDisableIcon = createImageIcon("icons/line-wrap-disabled.png");
+        findReplaceIcon = createImageIcon("icons/text-search-replace.png");
     }
 
     private ImageIcon createImageIcon(String path) {
