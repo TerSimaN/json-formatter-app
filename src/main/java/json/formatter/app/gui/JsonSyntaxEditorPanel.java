@@ -114,6 +114,10 @@ public class JsonSyntaxEditorPanel extends JPanel implements DocumentListener {
         }
     }
 
+    public boolean getHasFileChanged() {
+        return hasFileChanged;
+    }
+
     /**
      * Creates a file controls JPanel
      * @return the panel
@@ -460,7 +464,7 @@ public class JsonSyntaxEditorPanel extends JPanel implements DocumentListener {
         }
     }
 
-    private void save() {
+    public void save() {
         JFileChooser fileSave = new JFileChooser(this.lastSaveDirectoryPath);
         fileSave.setFileFilter(fileFilter);
 
