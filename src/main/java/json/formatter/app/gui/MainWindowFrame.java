@@ -12,10 +12,8 @@ public class MainWindowFrame extends JFrame implements PropertyChangeListener {
     private JsonSyntaxEditorPanel editorPanel;
     private String defaultTitle = "JSON Formatter";
     private String changedTitle = null;
-    private Frame parentFrame = this;
 
     public MainWindowFrame(Frame frame) {
-        this.parentFrame = frame;
         this.setName("MainFrame");
         this.setTitle(defaultTitle);
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -27,7 +25,7 @@ public class MainWindowFrame extends JFrame implements PropertyChangeListener {
                     String dialogMessage = String.format("Do you want to save the changes you made to %1$s?\n" +
                         "Your changes will be lost if you don't save them.\n", fullFilePath);
                     Object[] options = {"Save", "Don't Save", "Cancel"};
-                    int answer = JOptionPane.showOptionDialog(parentFrame, dialogMessage, defaultTitle,
+                    int answer = JOptionPane.showOptionDialog(null, dialogMessage, defaultTitle,
                         JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
                     
                     if (answer == JOptionPane.YES_OPTION) {

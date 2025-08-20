@@ -184,7 +184,7 @@ public class JsonSyntaxEditorPanel extends JPanel implements DocumentListener {
         redoButton.addActionListener(redoListener);
         panel.add(redoButton);
 
-        lineWrapButton = new JButton(iconConstants.wrapEnableIcon);
+        lineWrapButton = new JButton(iconConstants.lineWrapEnableIcon);
         lineWrapButton.setPreferredSize(iconBtnPreferredSize);
         lineWrapButton.setToolTipText("Line wrap (currently disabled)");
         lineWrapButton.addActionListener(e -> updateLineWrapState());
@@ -445,7 +445,7 @@ public class JsonSyntaxEditorPanel extends JPanel implements DocumentListener {
 
     private void updateLineWrapState() {
         jsonSyntaxTextArea.setLineWrap(hasLineWrap);
-        Icon lineWrapIcon = hasLineWrap ? iconConstants.wrapDisableIcon : iconConstants.wrapEnableIcon;
+        Icon lineWrapIcon = hasLineWrap ? iconConstants.lineWrapDisableIcon : iconConstants.lineWrapEnableIcon;
         lineWrapButton.setIcon(lineWrapIcon);
         String toolTipText = hasLineWrap ? "Line wrap (currently enabled)" : "Line wrap (currently disabled)";
         lineWrapButton.setToolTipText(toolTipText);
@@ -710,6 +710,7 @@ public class JsonSyntaxEditorPanel extends JPanel implements DocumentListener {
         }
     }
 
+    // A syntaxTextArea key listener used for updating undo/redo state
     class SyntaxTextAreaKeyListener extends KeyAdapter {
         @Override
         public void keyTyped(KeyEvent e) {
